@@ -2,10 +2,12 @@
 name: agora-write-report
 description: Writes a markdown session report after a debate completes. Invoked automatically by agora-run-debate. Not for direct user invocation.
 user-invocable: false
-version: 1.0.0
+version: 1.1.0
 ---
 
 ## Write a session report
+
+The caller passes session data including [SESSION_KPIS] and [KPI_RESULTS] from the run-debate skill.
 
 Create ideas/{slug}/sessions/{slug}-session-{n}-{YYYYMMDD}.md with this structure:
 
@@ -18,6 +20,26 @@ Create ideas/{slug}/sessions/{slug}-session-{n}-{YYYYMMDD}.md with this structur
 **Rounds completed:** {n}
 **Ended because:** {reason}
 **Specialists:** {comma-separated specialist names}
+
+---
+
+## Session KPIs
+
+**KPI Score: {kpi_score × 100}%**
+
+### Dimension Targets
+
+| Dimension | Target | Before | After | Result |
+|---|---|---|---|---|
+| {dimension} | {target}/10 | {before}/10 | {after}/10 | Met / Partial / Not met |
+...
+
+### Key Questions
+
+| Question | Answered? |
+|---|---|
+| {question text} | Yes / Partial / No |
+...
 
 ---
 

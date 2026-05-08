@@ -4,7 +4,7 @@ description: Run a full multi-agent debate session to develop an idea. Use when 
 disable-model-invocation: true
 argument-hint: "[idea-id]"
 allowed-tools: Read Write
-version: 1.1.0
+version: 1.2.0
 ---
 
 ## Run a debate session
@@ -16,9 +16,40 @@ version: 1.1.0
 3. Determine session number: count existing rows in the idea's Session History table + 1.
 4. Read .claude/skills/agora-lead-specialist/SKILL.md to understand how to invoke the lead agent.
 
+### Establish session KPIs
+
+5. Before invoking any specialists, define measurable goals for this session:
+
+   a. From the current readiness breakdown, select the 3 lowest-scoring dimensions.
+      For each, compute a target score: min(current_score + 2, 10). If current is 0, target is 2.
+
+   b. From the idea's Open Questions list (in ideas/{slug}/README.md), select the 2 most critical
+      unanswered questions. If fewer than 2 exist, use what is available.
+
+   c. Save these as [SESSION_KPIS]:
+      ```
+      dimension_targets: [{dimension, before, target}, ...]
+      questions: [{text}, ...]
+      ```
+
+   d. Print the session KPIs before the first round:
+
+      ── Session KPIs ───────────────────────────────
+      Readiness target: {current}% → {estimated target based on dimension gains}%
+
+      Dimension targets:
+      • {dimension}: {current}/10 → {target}/10
+      • {dimension}: {current}/10 → {target}/10
+      • {dimension}: {current}/10 → {target}/10
+
+      Key questions to answer:
+      • {question 1}
+      • {question 2}
+      ───────────────────────────────────────────────
+
 ### Invoke the lead agent
 
-5. Invoke /agora-lead-specialist with the idea slug as argument.
+6. Invoke /agora-lead-specialist with the idea slug as argument.
    The lead agent returns a JSON array of specialist skill names to include this session.
    Example: ["specialist-skeptic", "specialist-tech-lead", "specialist-market-analyst", "specialist-finance"]
    Save this as the roster for this session.
@@ -29,9 +60,9 @@ Default: 3 rounds. Check CLAUDE.md for configured limits.
 
 For each round:
 
-6. Print a round header: "── Round {n} of {max} ──────────────────────"
+7. Print a round header: "── Round {n} of {max} ──────────────────────"
 
-7. For each specialist in the roster:
+8. For each specialist in the roster:
    a. Read .claude/skills/{specialist-name}/MEMORY.md — if the file exists, load its content as [YOUR MEMORY].
       If the file does not exist, omit [YOUR MEMORY] from the context.
    b. Invoke the specialist skill as /specialist-{name} with context containing:
@@ -47,43 +78,43 @@ For each round:
       └──────────────────────────────────────────────────┘
    d. Add their message to the round message list.
 
-8. After all specialists in the round have responded, invoke /agora-score-round with:
+9. After all specialists in the round have responded, invoke /agora-score-round with:
    - The idea slug
    - All messages from this round
    - Current scores from the idea file
 
-9. /agora-score-round returns updated scores and synthesis. Print a milestone update:
+10. /agora-score-round returns updated scores and synthesis. Print a milestone update:
 
-   ── Round {n} complete ──────────────────────────
-   Readiness: {old}% → {new}%
+    ── Round {n} complete ──────────────────────────
+    Readiness: {old}% → {new}%
 
-   {synthesis paragraph}
+    {synthesis paragraph}
 
-   Dimension progress:
-   {updated breakdown table with █░ bars}
+    Dimension progress:
+    {updated breakdown table with █░ bars}
 
-   Open questions remaining:
-   • {question 1}
-   • {question 2}
-   • {question 3}
+    Open questions remaining:
+    • {question 1}
+    • {question 2}
+    • {question 3}
 
-10. Update ideas/{slug}/README.md with new scores, open questions, and best answers.
+11. Update ideas/{slug}/README.md with new scores, open questions, and best answers.
 
-11. Check termination:
+12. Check termination:
     - If rounds completed = max rounds → end, reason: "max_rounds"
     - If readiness >= 85% → end, reason: "target_reached"
     - Otherwise continue to next round.
 
 ### Finish
 
-12. Invoke /agora-write-report with the session data.
-13. Update the Session History table in ideas/{slug}/README.md:
+13. Invoke /agora-write-report with the session data AND [SESSION_KPIS] so the report includes the KPI section.
+14. Update the Session History table in ideas/{slug}/README.md:
     | {n} | {today} | {score_before}% | {score_after}% | {rounds} | ideas/{slug}/sessions/{filename} |
-14. Update ideas_index.md with new score and session count.
+15. Update ideas_index.md with new score and session count.
 
 ### Update agent memories
 
-15. For each specialist in the roster, trigger a memory update:
+16. For each specialist in the roster, trigger a memory update:
     a. Read .claude/skills/{specialist-name}/MEMORY.md — load its content as [CURRENT MEMORY].
        If the file does not exist, use empty string.
     b. Collect all messages from this specialist across all rounds as [YOUR CONTRIBUTIONS],
@@ -98,7 +129,59 @@ For each round:
     e. The specialist returns ONLY the updated MEMORY.md content (a markdown document).
     f. Write the returned content to .claude/skills/{specialist-name}/MEMORY.md.
 
-16. Print final summary:
+### Evaluate KPIs and write analytics
+
+17. Evaluate the session KPIs defined in step 5:
+
+    a. For each dimension target in [SESSION_KPIS]:
+       - Met:     final_score >= target
+       - Partial: final_score > before AND final_score < target
+       - Not met: final_score <= before
+       Record: {dimension, before, target, after, result}
+
+    b. For each key question, assess from the full transcript whether it was answered:
+       - Yes:     a clear, specific answer was established
+       - Partial: progress was made but no definitive answer
+       - No:      not addressed
+       Record: {question, answered: yes|partial|no}
+
+    c. Compute the KPI score:
+       kpi_score = (count_met × 1.0 + count_partial × 0.5) / total_kpi_count
+       Round to 2 decimal places.
+
+    d. Save as [KPI_RESULTS]: {dimension_results, question_results, kpi_score}
+
+18. Write session analytics — append one JSON line to analytics/sessions.jsonl
+    (create the file if it does not exist; create analytics/ directory if needed):
+
+    {
+      "session_id": "{slug}-session-{n}-{YYYYMMDD}",
+      "slug": "{slug}",
+      "idea_name": "{idea name}",
+      "date": "{YYYY-MM-DD}",
+      "rounds": {rounds_completed},
+      "score_before": {score_before},
+      "score_after": {score_after},
+      "delta": {score_after - score_before},
+      "ended_reason": "{max_rounds|target_reached|budget_exceeded}",
+      "kpi_score": {float 0.0–1.0},
+      "kpis": {
+        "dimension_targets": [
+          {"dimension": "...", "before": N, "target": N, "after": N, "result": "met|partial|not_met"}
+        ],
+        "questions": [
+          {"question": "...", "answered": "yes|partial|no"}
+        ]
+      },
+      "specialists": ["{specialist-name}", ...],
+      "specialist_versions": {"{specialist-name}": "{version}", ...}
+    }
+
+    Read the version field from each specialist's SKILL.md frontmatter to populate specialist_versions.
+
+### Print final summary
+
+19. Print:
 
     ══ Session Complete ══════════════════════════
     Idea: {name}
@@ -107,16 +190,23 @@ For each round:
     Ended because: {reason}
     Report: ideas/{slug}/sessions/{filename}
 
+    KPI Results ({kpi_score × 100}% achieved):
+    • {dimension}: {before}/10 → {after}/10 [{Met|Partial|Not met}] (target was {target}/10)
+    • {dimension}: {before}/10 → {after}/10 [{Met|Partial|Not met}]
+    • {dimension}: {before}/10 → {after}/10 [{Met|Partial|Not met}]
+    • Q: "{question 1}" → {Yes|Partial|No}
+    • Q: "{question 2}" → {Yes|Partial|No}
+
     Weakest dimensions to address next:
     • {dim 1}: {score}/10
     • {dim 2}: {score}/10
 
-    Specialist memories updated: {comma-separated list of specialists whose MEMORY.md was written}
+    Specialist memories updated: {comma-separated list}
 
     Run /agora-run-debate {slug} to continue developing this idea.
 
 ### Post-session review
 
-17. Invoke /agora-review-specialists {slug} automatically.
+20. Invoke /agora-review-specialists {slug} automatically.
     Pass the slug as the argument so the skill resolves the most recent session file.
     This step is mandatory — do not skip it even if the session ended early.

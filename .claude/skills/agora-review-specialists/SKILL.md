@@ -121,20 +121,54 @@ status: pending
 
    b. Do not create a proposal file for agents with severity `none`.
 
+### Write specialist analytics
+
+9. Append one JSON line per specialist to analytics/specialists.jsonl
+   (create the file if it does not exist; create analytics/ directory if needed):
+
+   For each specialist reviewed:
+   {
+     "session_id": "{slug}-session-{n}-{YYYYMMDD}",
+     "date": "{YYYY-MM-DD}",
+     "specialist": "{specialist-name}",
+     "version": "{version from SKILL.md frontmatter}",
+     "scores": {
+       "adherence": {1–5},
+       "specificity": {1–5},
+       "novelty": {1–5},
+       "responsiveness": {1–5},
+       "impact": {1–5},
+       "word_count_compliance": {true|false}
+     },
+     "overall": {average of the five numeric scores, rounded to 1 decimal},
+     "severity": "{none|minor|moderate|major}",
+     "proposal_written": {true|false},
+     "proposal_file": "{path to PROPOSAL file, or null}"
+   }
+
+   Score rubric (1–5):
+   - adherence: Did they follow their stated role and output structure?
+   - specificity: Did they name real technologies, numbers, companies, not vague generalities?
+   - novelty: Did they introduce new information each round vs. repeat prior points?
+   - responsiveness: Did they acknowledge and build on what other specialists said?
+   - impact: Did their contributions measurably raise any readiness dimension score?
+
 ### Print summary
 
-9. Print:
+10. Print:
 
-   ── Specialist Review Complete ────────────────────────────
-   Session: {filename}
-   Specialists reviewed: {n}
+    ── Specialist Review Complete ────────────────────────────
+    Session: {filename}
+    Specialists reviewed: {n}
 
-   Proposals written:
-   {for each proposal: • {specialist-name} v{current} → v{proposed} ({change-type}): {one-line summary}}
-   {for each major proposal: ⚠ {specialist-name}: major restructure — consider /knowledge-architect before applying}
+    Proposals written:
+    {for each proposal: • {specialist-name} v{current} → v{proposed} ({change-type}): {one-line summary}}
+    {for each major proposal: ⚠ {specialist-name}: major restructure — consider /knowledge-architect before applying}
 
-   No changes needed:
-   {for each specialist with no proposal: • {specialist-name}: performed as expected}
+    No changes needed:
+    {for each specialist with no proposal: • {specialist-name}: performed as expected}
 
-   To apply a proposal: /agora-apply-specialist-update {specialist-name}
-   ────────────────────────────────────────────────────
+    Analytics written: analytics/specialists.jsonl (+{n} records)
+
+    To apply a proposal: /agora-apply-specialist-update {specialist-name}
+    ────────────────────────────────────────────────────
