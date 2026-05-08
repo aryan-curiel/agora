@@ -1,0 +1,38 @@
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1e293b", "primaryTextColor": "#f8fafc", "primaryBorderColor": "#475569", "lineColor": "#94a3b8", "secondaryColor": "#0f172a", "background": "#0f172a", "mainBkg": "#1e293b", "nodeBorder": "#475569", "clusterBkg": "#162032", "titleColor": "#f8fafc", "edgeLabelBackground": "#1e293b", "fontFamily": "monospace", "fontSize": "14px"}}}%%
+
+graph TB
+    LA(["lead-agent\nreads readiness scores\nreturns JSON roster"])
+
+    SK["agent-skeptic\nChallenges assumptions · finds gaps\nAlways included  (90%+ sessions)"]
+
+    TL["agent-tech-lead\nFeasibility · stack · build estimates\nWhen  tech_stack < 6  or  poc_scope < 6"]
+    MKT["agent-market-analyst\nTarget users · competition · GTM\nWhen  target_user < 6  or  go_to_market < 6"]
+    FIN["agent-finance\nRevenue models · pricing · budgets\nWhen  monetization < 6  or  budget < 6"]
+    UX["agent-ux-designer\nUser flows · MVP scope · features\nWhen  core_features < 6  or  poc_scope < 5"]
+    PM["agent-product-manager\nSuccess metrics · roadmap · scope\nWhen  success_metrics < 5"]
+    LEG["agent-legal\nCompliance · data privacy · risk\nWhen  fintech / healthtech / user data"]
+    GRW["agent-growth\nAcquisition · virality · traction\nWhen  go_to_market < 5  or  consumer idea"]
+
+    LA -->|"always"| SK
+    LA -->|"technical ideas"| TL
+    LA -->|"market-facing ideas"| MKT
+    LA -->|"commercial ideas"| FIN
+    LA -->|"user-facing products"| UX
+    LA -->|"unclear milestones"| PM
+    LA -->|"regulated industries"| LEG
+    LA -->|"consumer products"| GRW
+
+    NOTE["Roster size: 3–6 agents\nFirst session default:\nskeptic · tech-lead · market-analyst\nfinance · ux-designer"]
+
+    LA --- NOTE
+
+    style LA fill:#1e3a5f,stroke:#3b82f6,stroke-width:3px,color:#f8fafc
+    style SK fill:#4c1d95,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc
+    style TL fill:#1e3a5f,stroke:#3b82f6,stroke-width:1px,color:#f8fafc
+    style MKT fill:#1e3a5f,stroke:#3b82f6,stroke-width:1px,color:#f8fafc
+    style FIN fill:#1e3a5f,stroke:#3b82f6,stroke-width:1px,color:#f8fafc
+    style UX fill:#1e3a5f,stroke:#3b82f6,stroke-width:1px,color:#f8fafc
+    style PM fill:#1e3a5f,stroke:#3b82f6,stroke-width:1px,color:#f8fafc
+    style LEG fill:#1e3a5f,stroke:#3b82f6,stroke-width:1px,color:#f8fafc
+    style GRW fill:#1e3a5f,stroke:#3b82f6,stroke-width:1px,color:#f8fafc
+    style NOTE fill:#1a2e1a,stroke:#22c55e,stroke-width:1px,color:#94a3b8

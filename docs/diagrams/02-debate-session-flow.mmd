@@ -1,0 +1,60 @@
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1e293b", "primaryTextColor": "#f8fafc", "primaryBorderColor": "#475569", "lineColor": "#94a3b8", "secondaryColor": "#0f172a", "tertiaryColor": "#162032", "background": "#0f172a", "mainBkg": "#1e293b", "nodeBorder": "#475569", "clusterBkg": "#162032", "titleColor": "#f8fafc", "edgeLabelBackground": "#1e293b", "fontFamily": "monospace"}}}%%
+
+sequenceDiagram
+    actor User
+    participant RD as run-debate
+    participant LA as lead-agent
+    participant SA as Specialist Agents<br/>(roster 3–6)
+    participant SR as score-round
+    participant MA as meta-agent
+    participant WR as write-report
+    participant FS as File System
+
+    User->>RD: /run-debate [slug]
+    RD->>FS: Read ideas/{slug}/README.md
+    FS-->>RD: idea + current scores
+    RD->>LA: /lead-agent [slug]
+    LA->>FS: Read idea + readiness scores
+    LA-->>RD: JSON roster ["agent-skeptic","agent-tech-lead",...]
+
+    loop For each round (max 4)
+        RD->>RD: Print round header
+
+        loop For each specialist in roster
+            RD->>FS: Read agent MEMORY.md (if exists)
+            FS-->>RD: agent memory (or empty)
+            RD->>SA: /agent-{name} with idea context + prior round messages + memory
+            SA-->>RD: specialist analysis (250–400 words)
+            RD->>RD: Append to round messages list
+        end
+
+        RD->>SR: /score-round (slug, round messages, current scores)
+        SR->>FS: Read ideas/{slug}/README.md
+        SR->>MA: /meta-agent (idea + previous scores + round messages)
+        MA-->>SR: JSON {scores, synthesis, open_questions, best_answers}
+        SR-->>RD: updated scores, %, synthesis, questions
+
+        RD->>FS: Update ideas/{slug}/README.md (scores + questions)
+        RD->>RD: Print milestone update
+
+        alt readiness >= 85%
+            RD->>RD: Terminate — reason: target_reached
+        else rounds == max
+            RD->>RD: Terminate — reason: max_rounds
+        end
+    end
+
+    RD->>WR: /write-report (session data)
+    WR->>FS: Write ideas/{slug}/sessions/{slug}-session-{n}-{date}.md
+    WR-->>RD: filename
+
+    RD->>FS: Update Session History in README.md
+    RD->>FS: Update ideas_index.md
+
+    loop For each specialist in roster
+        RD->>SA: /agent-{name} MODE:memory-update (contributions + synthesis)
+        SA-->>RD: Updated MEMORY.md content
+        RD->>FS: Write .claude/skills/{agent}/MEMORY.md
+    end
+
+    RD-->>User: Session complete summary

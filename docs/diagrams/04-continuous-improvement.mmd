@@ -1,0 +1,42 @@
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1e293b", "primaryTextColor": "#f8fafc", "primaryBorderColor": "#475569", "lineColor": "#94a3b8", "secondaryColor": "#0f172a", "background": "#0f172a", "mainBkg": "#1e293b", "nodeBorder": "#475569", "clusterBkg": "#162032", "titleColor": "#f8fafc", "edgeLabelBackground": "#1e293b", "fontFamily": "monospace", "fontSize": "14px"}}}%%
+
+graph LR
+    subgraph SESSION["Debate Session"]
+        direction TB
+        RD["run-debate"]
+        AGENTS["Specialist Agents"]
+        MEM_R["Read MEMORY.md\n(agent's prior patterns)"]
+        MEM_W["Write MEMORY.md\n(updated after session)"]
+        RD -->|"1. loads memory before\neach agent turn"| MEM_R
+        MEM_R --> AGENTS
+        AGENTS -->|"contributes analysis"| RD
+        RD -->|"15. memory-update mode\nafter session ends"| AGENTS
+        AGENTS --> MEM_W
+    end
+
+    subgraph REVIEW_LOOP["Quality Improvement Loop"]
+        direction TB
+        REV["/review-agents\nAnalyze agent transcripts\nScore adherence · specificity\nnovelty · impact · word count"]
+        PROP["PROPOSAL-v{next}.md\nObserved issues + evidence\nProposed SKILL.md changes\nBreaking change analysis"]
+        APPLY["/apply-agent-update\nPatch SKILL.md\nBump version\nCascade breaking changes"]
+        CHNG["CHANGELOG.md\nVersion history entry\nSource session reference"]
+        REV -->|"writes if severity ≠ none"| PROP
+        PROP -->|"user reviews\nthen applies"| APPLY
+        APPLY --> CHNG
+        APPLY -->|"patch bump cascade"| AFFECTED["Affected agents\n(if breaking change)"]
+    end
+
+    subgraph SKILL_FILE["Skill Definition  (.claude/skills/{agent}/SKILL.md)"]
+        direction TB
+        FRONTMATTER["Frontmatter\nname · version · context: fork\nuser-invocable: false"]
+        BODY["Body\nRole definition\nDebate instructions\nMemory update mode"]
+    end
+
+    MEM_W -->|"accumulates across\nmultiple sessions"| MEM_R
+    SESSION -->|"user runs after\nany session"| REVIEW_LOOP
+    APPLY -->|"patches body or instructions"| SKILL_FILE
+    SKILL_FILE -->|"governs agent behavior\neach session"| AGENTS
+
+    style SESSION fill:#1e3a5f,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+    style REVIEW_LOOP fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#f8fafc
+    style SKILL_FILE fill:#2e1a1a,stroke:#ef4444,stroke-width:2px,color:#f8fafc
