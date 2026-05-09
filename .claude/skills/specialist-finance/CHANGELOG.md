@@ -1,5 +1,14 @@
 # Changelog — specialist-finance
 
+## [1.2.0] — 2026-05-09
+
+### Changed
+- Added explicit per-unit margin check to pricing proposal step: for every paid tier with a session or usage cap, Finance must compute revenue-per-unit minus per-session API/infra cost and flag any tier with gross margin below 30% as broken pricing before endorsing it.
+
+**Source:** Proposal `PROPOSAL-v1.2.0.md` — session `ideas/agora/sessions/agora-session-1-20260508.md`
+
+---
+
 ## [1.1.0] — 2026-05-08
 
 ### Added

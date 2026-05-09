@@ -31,8 +31,11 @@ Ideas live in `ideas/{slug}.md`. The index is `ideas_index.md`. Always keep the 
 | Listing ideas or checking scores | `/agora-list-ideas` | "Show me my ideas" |
 | Viewing or showing a specific idea | `/agora-show-idea` | "Show me the [name] idea" |
 | Reviewing specialist performance after a session | `/agora-review-specialists` | "Review specialists from the [slug] session" |
+| Listing pending improvement proposals by impact | `/agora-list-proposals` | "Show me pending proposals" or "What should I apply next?" |
 | Applying a specialist improvement proposal | `/agora-apply-specialist-update` | "Apply the [specialist-name] update" |
 | Analyzing session and specialist performance trends | `/agora-analyze` | "Analyze my sessions" or "Show me performance trends" |
+| Reviewing what new specialists to hire after a session | `/agora-hire-specialists` | "Check if we need new specialists" or "Run hiring review for [slug]" |
+| Building a new specialist from a job-post | `/agora-build-specialist` | "Build the [slug] specialist" or "Hire the [slug] specialist" |
 | Designing or validating Anthropic architecture | `/knowledge-architect` | "What architecture should I use for [project/change]?" |
 
 Scheduling is managed manually via the `ideas_index.md` schedule column.

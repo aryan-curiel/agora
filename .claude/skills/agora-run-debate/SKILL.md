@@ -4,7 +4,7 @@ description: Run a full multi-agent debate session to develop an idea. Use when 
 disable-model-invocation: true
 argument-hint: "[idea-id]"
 allowed-tools: Read Write
-version: 1.2.0
+version: 1.2.1
 ---
 
 ## Run a debate session
@@ -210,3 +210,9 @@ For each round:
 20. Invoke /agora-review-specialists {slug} automatically.
     Pass the slug as the argument so the skill resolves the most recent session file.
     This step is mandatory — do not skip it even if the session ended early.
+
+### Hiring review
+
+21. Invoke /agora-hire-specialists {slug} automatically.
+    Pass the slug as the argument so the skill resolves the most recent session file.
+    This step is mandatory — do not skip it even if the session ended early or no proposals were written in step 20.

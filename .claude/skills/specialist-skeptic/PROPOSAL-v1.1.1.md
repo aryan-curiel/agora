@@ -5,7 +5,8 @@ proposed-version: 1.1.1
 change-type: patch
 session: ideas/agora/sessions/agora-session-1-20260508.md
 date: 2026-05-08
-status: pending
+status: applied
+applied-date: 2026-05-09
 ---
 
 ## Proposed Changes to specialist-skeptic

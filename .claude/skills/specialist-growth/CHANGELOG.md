@@ -1,5 +1,14 @@
 # Changelog — specialist-growth
 
+## [1.1.1] — 2026-05-09
+
+### Changed
+- Tightened naming rule to apply to every item mentioned: Growth must name every specific subreddit, newsletter, community, influencer, or event referenced — if it cannot be named, it must be dropped from the response entirely.
+
+**Source:** Proposal `PROPOSAL-v1.1.1.md` — session `ideas/agora/sessions/agora-session-1-20260508.md`
+
+---
+
 ## [1.1.0] — 2026-05-08
 
 ### Added

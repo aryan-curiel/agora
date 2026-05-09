@@ -5,13 +5,13 @@ graph TD
 
     subgraph USER_SKILLS["User-Facing Skills"]
         direction TB
-        ADD["/add-idea\nCaptures idea name + description\nCreates ideas/{slug}/README.md"]
-        LIST["/list-ideas\nReads ideas_index.md\nShows scores + status"]
-        SHOW["/show-idea\nDisplays idea detail\nReadiness breakdown"]
-        RUN["/run-debate\nCore workflow orchestrator\n4 rounds · 40k token budget"]
-        REVIEW["/review-agents\nAnalyzes agent performance\nWrites PROPOSAL-v*.md files"]
-        APPLY["/apply-agent-update\nPatches SKILL.md\nBumps version + CHANGELOG"]
-        ARCH["/anthropic-architect\nArchitecture guidance\nfor extensions"]
+        ADD["/agora-add-idea\nCaptures idea name + description\nCreates ideas/{slug}/README.md"]
+        LIST["/agora-list-ideas\nReads ideas_index.md\nShows scores + status"]
+        SHOW["/agora-show-idea\nDisplays idea detail\nReadiness breakdown"]
+        RUN["/agora-run-debate\nCore workflow orchestrator\n4 rounds · 40k token budget"]
+        REVIEW["/agora-review-specialists\nAnalyzes specialist performance\nWrites PROPOSAL-v*.md files"]
+        APPLY["/agora-apply-specialist-update\nPatches SKILL.md\nBumps version + CHANGELOG"]
+        ARCH["/knowledge-architect\nArchitecture guidance\nfor extensions"]
     end
 
     subgraph FS["File System"]
@@ -26,7 +26,7 @@ graph TD
     User -->|"list ideas"| LIST
     User -->|"show idea"| SHOW
     User -->|"run debate"| RUN
-    User -->|"review agents"| REVIEW
+    User -->|"review specialists"| REVIEW
     User -->|"apply update"| APPLY
     User -->|"design arch"| ARCH
 

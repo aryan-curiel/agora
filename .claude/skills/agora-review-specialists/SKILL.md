@@ -1,7 +1,7 @@
 ---
 name: agora-review-specialists
 description: Reviews specialist agent performance after a completed debate session and writes improvement proposals. Use after a debate session to improve agent quality over time.
-version: 1.1.0
+version: 1.2.0
 argument-hint: "[idea-slug] [session-number]"
 allowed-tools: Read Write
 ---
@@ -63,6 +63,19 @@ allowed-tools: Read Write
    - Assess whether the proposed restructuring introduces new interaction patterns or changes how other agents consume this agent's output.
    - If the restructuring is complex, add an **Architectural Notes** section to that agent's proposal (see step 8a template).
    - Flag it in the print summary with: "⚠ Major restructure — consider /knowledge-architect before applying"
+
+### Check for existing pending proposals
+
+8-pre. Before writing any proposal file, scan `.claude/skills/{specialist-name}/` for existing `PROPOSAL-v*.md` files:
+   - Read each matching file and check its `status` field in the frontmatter.
+   - If a file has `status: pending`, it is an unapplied proposal — **update it instead of creating a new one**.
+   - Compare the `change-type` in the existing proposal against the newly determined change-type:
+     - If the new analysis requires a **higher** bump level (patch → minor, patch → major, minor → major), recompute the proposed version from the current skill version using the higher change-type.
+     - If the new analysis requires the **same or lower** bump level, keep the version from the existing proposal.
+   - If the proposed version changed, delete the old `PROPOSAL-v{old-version}.md` file and write a new `PROPOSAL-v{new-version}.md`.
+   - If the proposed version is unchanged, overwrite the existing file in place.
+   - Set the `date` field to today's date in the updated proposal.
+   - If `status: applied` or no proposal file exists at all, proceed to create a new proposal file as normal.
 
 ### Write proposal files
 

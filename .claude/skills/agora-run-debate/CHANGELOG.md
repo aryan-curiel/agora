@@ -1,5 +1,12 @@
 # Changelog — agora-run-debate
 
+## [1.2.1] — 2026-05-09
+
+### Added
+- Hiring review phase (step 21): after agora-review-specialists, automatically invokes /agora-hire-specialists {slug} to evaluate whether any new specialist roles should be created based on persistent coverage gaps in the session.
+
+---
+
 ## [1.1.0] — 2026-05-08
 
 ### Changed
