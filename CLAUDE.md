@@ -25,20 +25,22 @@ Ideas live in `ideas/{slug}.md`. The index is `ideas_index.md`. Always keep the 
 
 | Trigger | Skill | Natural language |
 |---|---|---|
-| Adding or creating an idea | `/add-idea` | "Add an idea: [describe it]" |
-| Running, starting, or triggering a debate session | `/run-debate` | "Run a debate on my [name] idea" |
-| Listing ideas or checking scores | `/list-ideas` | "Show me my ideas" |
-| Viewing or showing a specific idea | `/show-idea` | "Show me the [name] idea" |
-| Reviewing agent performance after a session | `/review-agents` | "Review agents from the [slug] session" |
-| Applying an agent improvement proposal | `/apply-agent-update` | "Apply the [agent-name] update" |
-| Designing or validating Anthropic architecture | `/anthropic-architect` | "What architecture should I use for [project/change]?" |
+| Adding or creating an idea | `/agora-add-idea` | "Add an idea: [describe it]" |
+| Adding a note to an idea | `/agora-add-note` | "Add a note to my [name] idea" |
+| Running, starting, or triggering a debate session | `/agora-run-debate` | "Run a debate on my [name] idea" |
+| Listing ideas or checking scores | `/agora-list-ideas` | "Show me my ideas" |
+| Viewing or showing a specific idea | `/agora-show-idea` | "Show me the [name] idea" |
+| Reviewing specialist performance after a session | `/agora-review-specialists` | "Review specialists from the [slug] session" |
+| Applying a specialist improvement proposal | `/agora-apply-specialist-update` | "Apply the [specialist-name] update" |
+| Analyzing session and specialist performance trends | `/agora-analyze` | "Analyze my sessions" or "Show me performance trends" |
+| Designing or validating Anthropic architecture | `/knowledge-architect` | "What architecture should I use for [project/change]?" |
 
 Scheduling is managed manually via the `ideas_index.md` schedule column.
 
 ## Session termination rules
 
 A debate session ends when the first of these is hit:
-- Max rounds reached (default: 4)
+- Max rounds reached (default: 3)
 - Readiness score reaches target (default: 85%)
 - Estimated token budget exceeded (default: 40,000 tokens)
 
