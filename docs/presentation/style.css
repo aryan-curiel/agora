@@ -1,0 +1,18 @@
+/* Hide the Goto dialog — the G key shortcut is disabled in setup/shortcuts.ts
+   so this dialog can never be opened, but we hide it defensively in case of
+   HMR state bleed-through. */
+#slidev-goto-dialog {
+  display: none !important;
+}
+
+/* Prevent code blocks from overflowing the slide */
+.slidev-layout pre {
+  max-height: 44vh;
+  overflow-y: auto;
+}
+
+/* Scale mermaid diagrams to fit within the slide */
+.slidev-layout .mermaid svg {
+  max-height: 52vh;
+  width: 100%;
+}

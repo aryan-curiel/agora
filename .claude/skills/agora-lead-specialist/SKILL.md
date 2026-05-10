@@ -13,7 +13,7 @@ You are the Lead Specialist in Agora. Your job is to read an idea and decide whi
 
 ### Read the idea
 
-Read ideas/$ARGUMENTS/README.md — get the full description and current readiness breakdown.
+Read ideas/$ARGUMENTS/README.md — get the full description, current readiness breakdown, and the `## Constraints` section if present.
 
 ### Available specialists
 
@@ -29,10 +29,15 @@ Read ideas/$ARGUMENTS/README.md — get the full description and current readine
 ### Selection rules
 
 1. Always include specialist-skeptic.
-2. Select 2-5 additional specialists based on the rules above.
+2. Read CLAUDE.md for `max_roster_size` (default: 4). Select (max_roster_size − 1) additional specialists.
 3. Prioritize specialists that address the dimensions with the lowest scores.
-4. Maximum roster size: 6 specialists total. Minimum: 3.
-5. For the very first session (all scores at 0), default roster: specialist-skeptic, specialist-tech-lead, specialist-market-analyst, specialist-finance, specialist-ux-designer.
+4. When two specialists cover similar gaps, prefer the one with the lower relevant score.
+5. For the very first session (all scores at 0), default roster: specialist-skeptic, specialist-tech-lead, specialist-market-analyst.
+6. If constraints are present, adjust priority based on constraint domains:
+   - Tech or stack constraints → increase priority of specialist-tech-lead
+   - Budget or cost constraints → increase priority of specialist-finance
+   - Legal, compliance, or data constraints → always include specialist-legal
+   - UX or user-flow constraints → increase priority of specialist-ux-designer
 
 ### Output
 

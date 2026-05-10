@@ -4,7 +4,9 @@ Agora is a multi-agent debate system where AI specialists with different goals a
 
 ## How to work with ideas
 
-Ideas live in `ideas/{slug}.md`. The index is `ideas_index.md`. Always keep the index in sync. When in doubt about an idea's current state, read its file first.
+Ideas live in `ideas/{slug}/README.md`. The index is `ideas_index.md`. Always keep the index in sync. When in doubt about an idea's current state, read its file first.
+
+Constraints are hard requirements specialists must respect during all debate sessions (e.g. required tech stack, budget ceiling, product limitations). Add them with `/agora-add-constraint`. Specialists may only propose overriding a constraint using the explicit `⚠ CONSTRAINT OVERRIDE:` marker with a strong one-sentence justification.
 
 ## Readiness dimensions
 
@@ -27,6 +29,7 @@ Ideas live in `ideas/{slug}.md`. The index is `ideas_index.md`. Always keep the 
 |---|---|---|
 | Adding or creating an idea | `/agora-add-idea` | "Add an idea: [describe it]" |
 | Adding a note to an idea | `/agora-add-note` | "Add a note to my [name] idea" |
+| Adding or updating a constraint on an idea | `/agora-add-constraint` | "Add a constraint to my [name] idea" |
 | Running, starting, or triggering a debate session | `/agora-run-debate` | "Run a debate on my [name] idea" |
 | Listing ideas or checking scores | `/agora-list-ideas` | "Show me my ideas" |
 | Viewing or showing a specific idea | `/agora-show-idea` | "Show me the [name] idea" |
@@ -40,10 +43,22 @@ Ideas live in `ideas/{slug}.md`. The index is `ideas_index.md`. Always keep the 
 
 Scheduling is managed manually via the `ideas_index.md` schedule column.
 
+## Session defaults
+
+| Setting | Default | Description |
+|---|---|---|
+| max_roster_size | 4 | Max specialists per session (including skeptic). |
+| max_rounds | 3 | Max rounds when readiness < 30% (new idea). |
+| max_rounds_partial | 2 | Max rounds when readiness ≥ 30% (partially developed). |
+| readiness_target | 85% | Score at which a session ends early. |
+| token_budget | 40,000 | Estimated token limit per session. |
+
+To override any default, add a `## Session overrides` section below with `key: value` lines.
+
 ## Session termination rules
 
 A debate session ends when the first of these is hit:
-- Max rounds reached (default: 3)
+- Max rounds reached (see session defaults above)
 - Readiness score reaches target (default: 85%)
 - Estimated token budget exceeded (default: 40,000 tokens)
 

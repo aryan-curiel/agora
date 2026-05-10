@@ -13,6 +13,9 @@ version: 1.2.1
 
 1. Resolve the idea from $ARGUMENTS. If empty, read ideas_index.md and ask the user to pick from active ideas.
 2. Read ideas/{slug}/README.md fully. Note current readiness score and breakdown.
+   Also extract the `## Constraints` section if present. Format it as a flat list:
+   - {constraint} (Rationale: {rationale})
+   Store as [CONSTRAINTS]. If the section is absent or has no rows, set [CONSTRAINTS] to null.
 3. Determine session number: count existing rows in the idea's Session History table + 1.
 4. Read .claude/skills/agora-lead-specialist/SKILL.md to understand how to invoke the lead agent.
 
@@ -50,13 +53,18 @@ version: 1.2.1
 ### Invoke the lead agent
 
 6. Invoke /agora-lead-specialist with the idea slug as argument.
+   If [CONSTRAINTS] is not null, include it in the context so the lead specialist can factor constraints into roster selection.
    The lead agent returns a JSON array of specialist skill names to include this session.
    Example: ["specialist-skeptic", "specialist-tech-lead", "specialist-market-analyst", "specialist-finance"]
    Save this as the roster for this session.
 
 ### Run debate rounds
 
-Default: 3 rounds. Check CLAUDE.md for configured limits.
+Read CLAUDE.md for session defaults. Set max rounds adaptively:
+- If current readiness score ≥ 30% → use `max_rounds_partial` (default: 2)
+- Otherwise → use `max_rounds` (default: 3)
+
+Check for `## Session overrides` in CLAUDE.md and apply any matching keys.
 
 For each round:
 
@@ -67,6 +75,7 @@ For each round:
       If the file does not exist, omit [YOUR MEMORY] from the context.
    b. Invoke the specialist skill as /specialist-{name} with context containing:
       - [YOUR MEMORY]: {content of their MEMORY.md, if it exists}
+      - [CONSTRAINTS]: {formatted constraint list from step 2, if not null}
       - The idea name and full description
       - Current readiness breakdown (scores only, not full file)
       - All messages from previous rounds this session (last 10 messages max for context)
@@ -82,6 +91,7 @@ For each round:
    - The idea slug
    - All messages from this round
    - Current scores from the idea file
+   - [CONSTRAINTS]: {formatted constraint list from step 2, if not null}
 
 10. /agora-score-round returns updated scores and synthesis. Print a milestone update:
 
@@ -127,7 +137,16 @@ For each round:
        - [SESSION SYNTHESIS]: {content from step c}
        - [DATE]: {today's date YYYY-MM-DD}
     e. The specialist returns ONLY the updated MEMORY.md content (a markdown document).
-    f. Write the returned content to .claude/skills/{specialist-name}/MEMORY.md.
+    f. Collect all updated MEMORY.md contents, then write them in a single Bash call using
+       heredocs — one per file — rather than separate Write tool calls. Example:
+       ```bash
+       cat > .claude/skills/specialist-foo/MEMORY.md << 'EOF'
+       {content}
+       EOF
+       cat > .claude/skills/specialist-bar/MEMORY.md << 'EOF'
+       {content}
+       EOF
+       ```
 
 ### Evaluate KPIs and write analytics
 
@@ -152,7 +171,8 @@ For each round:
     d. Save as [KPI_RESULTS]: {dimension_results, question_results, kpi_score}
 
 18. Write session analytics — append one JSON line to analytics/sessions.jsonl
-    (create the file if it does not exist; create analytics/ directory if needed):
+    (create the file if it does not exist; create analytics/ directory if needed).
+    Use a single Bash call with `>>` rather than a Write tool call:
 
     {
       "session_id": "{slug}-session-{n}-{YYYYMMDD}",

@@ -6,9 +6,10 @@ graph TD
     subgraph USER_SKILLS["User-Facing Skills"]
         direction TB
         ADD["/agora-add-idea\nCaptures idea name + description\nCreates ideas/{slug}/README.md"]
+        CONSTR["/agora-add-constraint\nAdds hard constraint to idea\nEnforced in all debate sessions"]
         LIST["/agora-list-ideas\nReads ideas_index.md\nShows scores + status"]
         SHOW["/agora-show-idea\nDisplays idea detail\nReadiness breakdown"]
-        RUN["/agora-run-debate\nCore workflow orchestrator\n4 rounds · 40k token budget"]
+        RUN["/agora-run-debate\nCore workflow orchestrator\n2–3 rounds · 40k token budget"]
         REVIEW["/agora-review-specialists\nAnalyzes specialist performance\nWrites PROPOSAL-v*.md files"]
         APPLY["/agora-apply-specialist-update\nPatches SKILL.md\nBumps version + CHANGELOG"]
         ARCH["/knowledge-architect\nArchitecture guidance\nfor extensions"]
@@ -23,6 +24,7 @@ graph TD
     end
 
     User -->|"add idea"| ADD
+    User -->|"add constraint"| CONSTR
     User -->|"list ideas"| LIST
     User -->|"show idea"| SHOW
     User -->|"run debate"| RUN
@@ -32,6 +34,7 @@ graph TD
 
     ADD -->|"creates"| IDEA
     ADD -->|"updates"| IDX
+    CONSTR -->|"reads/updates"| IDEA
     LIST -->|"reads"| IDX
     SHOW -->|"reads"| IDEA
     RUN -->|"reads/updates"| IDEA
@@ -41,6 +44,7 @@ graph TD
     REVIEW -->|"writes"| SKILLS_DIR
     APPLY -->|"patches"| SKILLS_DIR
 
+    style CONSTR fill:#78350f,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
     style USER_SKILLS fill:#1e3a5f,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
     style FS fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#f8fafc
     style User fill:#4c1d95,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc

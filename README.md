@@ -31,8 +31,12 @@ claude
 | See all ideas | `/agora-list-ideas` | "Show me my ideas" |
 | Inspect an idea | `/agora-show-idea [idea-id]` | "Show me the [name] idea" |
 | Continue developing | `/agora-run-debate [idea-id]` | "Continue working on [name]" |
+| Add a note to an idea | `/agora-add-note [idea-id]` | "Add a note to my [name] idea" |
 | Review specialist performance | `/agora-review-specialists [slug]` | "Review specialists from the [name] session" |
+| See pending improvement proposals | `/agora-list-proposals` | "Show me pending proposals" |
 | Apply a specialist improvement | `/agora-apply-specialist-update [specialist]` | "Apply the [specialist-name] update" |
+| Analyze session/specialist trends | `/agora-analyze` | "Analyze my sessions" |
+| Check if new specialists are needed | `/agora-hire-specialists [slug]` | "Check if we need new specialists" |
 | Design or validate architecture | `/knowledge-architect` | "What architecture should I use for [project/change]?" |
 
 ## Readiness score
@@ -54,8 +58,8 @@ Every idea is scored across 10 dimensions, each 0–10. The overall readiness pe
 
 ## How sessions work
 
-1. **Lead specialist** reads the idea and selects 3–6 specialists best suited to address the current readiness gaps.
-2. **Debate rounds** (default: 4) — each specialist analyzes the idea from their perspective, with each specialist seeing what others said earlier in the round.
+1. **Lead specialist** reads the idea and selects 3–4 specialists best suited to address the current readiness gaps.
+2. **Debate rounds** (2 for ideas with readiness ≥ 30%, 3 for new ideas) — each specialist analyzes the idea from their perspective, with each specialist seeing what others said earlier in the round.
 3. **Meta specialist** scores all 10 dimensions after each round and produces a synthesis of what was concretely established.
 4. **Milestone updates** are printed after each round showing score progress, dimension breakdown, and open questions.
 5. **Session report** is written to `ideas/{slug}/sessions/` with the full transcript, final scores, and recommendations for the next session.

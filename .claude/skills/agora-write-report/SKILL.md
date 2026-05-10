@@ -23,6 +23,16 @@ Create ideas/{slug}/sessions/{slug}-session-{n}-{YYYYMMDD}.md with this structur
 
 ---
 
+## Constraints
+
+{If the idea had constraints, include this section. Otherwise omit it entirely.}
+
+| Constraint | Rationale | Override Proposed? |
+|---|---|---|
+| {constraint} | {rationale} | Yes — {specialist}: {justification} / No |
+
+---
+
 ## Session KPIs
 
 **KPI Score: {kpi_score × 100}%**
