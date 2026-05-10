@@ -27,6 +27,7 @@ claude
 | What you want | Skill | Natural language |
 |---|---|---|
 | Add a new idea | `/agora-add-idea [name]` | "Add an idea: [describe it]" |
+| Add a constraint to an idea | `/agora-add-constraint [idea-id]` | "Add a constraint to my [name] idea" |
 | Run a debate session | `/agora-run-debate [idea-id]` | "Run a debate on my [name] idea" |
 | See all ideas | `/agora-list-ideas` | "Show me my ideas" |
 | Inspect an idea | `/agora-show-idea [idea-id]` | "Show me the [name] idea" |
@@ -55,6 +56,10 @@ Every idea is scored across 10 dimensions, each 0–10. The overall readiness pe
 | 8 | Success metrics | Are measurable success criteria defined? |
 | 9 | Monetization | Is there a revenue model? (N/A for personal/OSS) |
 | 10 | Budget estimates | Are rough cost/effort estimates available per phase? |
+
+## How adding an idea works
+
+When you run `/agora-add-idea`, the skill asks for a brief description and then sends a single follow-up with 9 targeted questions — one per readiness dimension (problem, users, features, stack, GTM, risks, PoC scope, metrics, monetization, budget). Answer what you know; skip the rest. The README is written with real initial scores for answered dimensions, so debate sessions start with context rather than blanks.
 
 ## How sessions work
 

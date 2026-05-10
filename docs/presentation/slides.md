@@ -82,11 +82,12 @@ ideas/
       agora-session-1-20260508.md
 
 .claude/skills/
+  agora-add-idea/      ← structured intake
+  agora-add-constraint/
   agora-run-debate/    ← orchestrator
   agora-lead-specialist/
   specialist-skeptic/
   specialist-tech-lead/
-  specialist-market-analyst/
   ...
 ```
 
@@ -109,7 +110,7 @@ class: text-center
   <div class="text-3xl mb-2">1</div>
   <div class="font-bold text-blue-400 mb-2">Add an Idea</div>
   <code class="text-sm">"Add an idea: SaaS invoice tool for freelancers"</code>
-  <div class="text-sm mt-2 text-gray-400">Creates ideas/slug/README.md and updates the index</div>
+  <div class="text-sm mt-2 text-gray-400">Asks 9 targeted questions, then writes ideas/{slug}/README.md with initial scores already filled in</div>
 </div>
 
 <div class="border border-purple-400 rounded-lg p-4">
