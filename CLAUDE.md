@@ -31,6 +31,7 @@ Constraints are hard requirements specialists must respect during all debate ses
 | Adding a note to an idea | `/agora-add-note` | "Add a note to my [name] idea" |
 | Adding or updating a constraint on an idea | `/agora-add-constraint` | "Add a constraint to my [name] idea" |
 | Running, starting, or triggering a debate session | `/agora-run-debate` | "Run a debate on my [name] idea" |
+| Running or starting a brainstorm session on an idea | `/agora-brainstorm` | "Brainstorm on my [name] idea" |
 | Listing ideas or checking scores | `/agora-list-ideas` | "Show me my ideas" |
 | Viewing or showing a specific idea | `/agora-show-idea` | "Show me the [name] idea" |
 | Reviewing specialist performance after a session | `/agora-review-specialists` | "Review specialists from the [slug] session" |
@@ -50,6 +51,7 @@ Scheduling is managed manually via the `ideas_index.md` schedule column.
 | max_roster_size | 4 | Max specialists per session (including skeptic). |
 | max_rounds | 3 | Max rounds when readiness < 30% (new idea). |
 | max_rounds_partial | 2 | Max rounds when readiness ≥ 30% (partially developed). |
+| max_brainstorm_rounds | 3 | Max rounds per brainstorm session. All rounds always run (no early exit). |
 | readiness_target | 85% | Score at which a session ends early. |
 | token_budget | 40,000 | Estimated token limit per session. |
 
@@ -66,3 +68,4 @@ A debate session ends when the first of these is hit:
 
 - Ideas: `ideas/{slug}/README.md` where slug is lowercase-hyphenated name
 - Sessions: `ideas/{slug}/sessions/{slug}-session-{n}-{YYYYMMDD}.md`
+- Brainstorm sessions: `ideas/{slug}/sessions/{slug}-brainstorm-{n}-{YYYYMMDD}.md`

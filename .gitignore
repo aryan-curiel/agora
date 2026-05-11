@@ -10,3 +10,7 @@ package-lock.json
 
 # Generated dashboard (run analytics/dashboard.py to rebuild)
 analytics/dashboard.html
+
+# Ideas are private — kept local only
+ideas/
+ideas_index.md
