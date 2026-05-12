@@ -53,7 +53,6 @@ Scheduling is managed manually via the `ideas_index.md` schedule column.
 | max_rounds_partial | 2 | Max rounds when readiness ≥ 30% (partially developed). |
 | max_brainstorm_rounds | 3 | Max rounds per brainstorm session. All rounds always run (no early exit). |
 | readiness_target | 85% | Score at which a session ends early. |
-| token_budget | 40,000 | Estimated token limit per session. |
 
 To override any default, add a `## Session overrides` section below with `key: value` lines.
 
@@ -62,7 +61,6 @@ To override any default, add a `## Session overrides` section below with `key: v
 A debate session ends when the first of these is hit:
 - Max rounds reached (see session defaults above)
 - Readiness score reaches target (default: 85%)
-- Estimated token budget exceeded (default: 40,000 tokens)
 
 ## File naming conventions
 

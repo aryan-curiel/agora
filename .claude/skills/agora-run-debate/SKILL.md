@@ -184,7 +184,7 @@ For each round:
       "score_before": {score_before},
       "score_after": {score_after},
       "delta": {score_after - score_before},
-      "ended_reason": "{max_rounds|target_reached|budget_exceeded}",
+      "ended_reason": "{max_rounds|target_reached}",
       "kpi_score": {float 0.0–1.0},
       "kpis": {
         "dimension_targets": [

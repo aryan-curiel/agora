@@ -84,7 +84,7 @@ Brainstorming is the right starting point when an idea needs creative expansion;
 4. **Milestone updates** are printed after each round showing score progress, dimension breakdown, and open questions.
 5. **Session report** is written to `ideas/{slug}/sessions/` with the full transcript, final scores, and recommendations for the next session.
 
-Sessions end when max rounds are hit, readiness reaches 85%, or the token budget is exceeded.
+Sessions end when max rounds are hit or readiness reaches 85%.
 
 After the session you'll see opt-in prompts for `/agora-review-specialists` and `/agora-hire-specialists` — run them when you want specialist feedback, skip them to save tokens.
 

@@ -441,8 +441,6 @@ Default: 85% — the idea is fully planned
 - New ideas (score < 30%): **3 rounds**
 - Partial ideas (score ≥ 30%): **2 rounds**
 
-**3. Token budget exceeded**  
-Default: 40,000 tokens per session
 
 </v-clicks>
 
@@ -459,7 +457,6 @@ max_roster_size: 4      # specialists per session
 max_rounds: 3           # new ideas (< 30%)
 max_rounds_partial: 2   # partial ideas (≥ 30%)
 readiness_target: 85%
-token_budget: 40,000
 
 # Override example:
 # ## Session overrides
