@@ -3,6 +3,7 @@ name: agora-meta-specialist
 description: Scores all 10 readiness dimensions after a debate round and produces a synthesis. Invoked automatically by agora-score-round. Not for direct user invocation.
 user-invocable: false
 version: 1.0.0
+author: Aryan Curiel
 ---
 
 ## Meta specialist — round scoring

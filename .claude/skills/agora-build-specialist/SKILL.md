@@ -4,6 +4,7 @@ description: Builds a new specialist agent from a job-post file. Conducts deep d
 version: 1.0.0
 argument-hint: "[specialist-slug]"
 allowed-tools: Read Write WebSearch WebFetch Bash
+author: Aryan Curiel
 ---
 
 ## Build a new specialist

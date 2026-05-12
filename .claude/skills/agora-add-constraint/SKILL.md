@@ -4,6 +4,7 @@ description: Add a hard constraint to a specific idea. Constraints are enforced 
 argument-hint: "[idea-slug] [constraint text]"
 allowed-tools: Read Write
 version: 1.0.0
+author: Aryan Curiel
 ---
 
 ## Add a constraint to an idea

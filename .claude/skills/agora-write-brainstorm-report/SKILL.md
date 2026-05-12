@@ -3,6 +3,8 @@ name: agora-write-brainstorm-report
 description: Writes a markdown brainstorm session report after a brainstorm completes. Invoked automatically by agora-brainstorm. Not for direct user invocation.
 user-invocable: false
 version: 1.0.0
+model: haiku
+author: Aryan Curiel
 ---
 
 ## Write a brainstorm session report

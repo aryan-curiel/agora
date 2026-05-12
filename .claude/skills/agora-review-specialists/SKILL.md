@@ -4,6 +4,7 @@ description: Reviews specialist agent performance after a completed debate sessi
 version: 1.2.0
 argument-hint: "[idea-slug] [session-number]"
 allowed-tools: Read Write
+author: Aryan Curiel
 ---
 
 ## Review agent performance

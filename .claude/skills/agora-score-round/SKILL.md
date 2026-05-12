@@ -3,6 +3,8 @@ name: agora-score-round
 description: Scores a completed debate round using the meta agent and updates the idea file. Invoked automatically by agora-run-debate. Not for direct user invocation.
 user-invocable: false
 version: 1.1.0
+model: haiku
+author: Aryan Curiel
 ---
 
 ## Score a debate round

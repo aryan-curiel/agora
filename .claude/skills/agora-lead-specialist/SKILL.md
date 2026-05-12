@@ -3,8 +3,10 @@ name: agora-lead-specialist
 description: Selects the specialist agent roster for a debate session based on the idea type and current readiness gaps. Invoked automatically by agora-run-debate. Not for direct user invocation.
 user-invocable: false
 context: fork
+model: haiku
 argument-hint: "[idea-slug]"
 version: 1.0.0
+author: Aryan Curiel
 ---
 
 ## Lead specialist — roster selection

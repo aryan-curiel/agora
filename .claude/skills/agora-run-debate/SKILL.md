@@ -5,6 +5,7 @@ disable-model-invocation: true
 argument-hint: "[idea-id]"
 allowed-tools: Read Write
 version: 1.2.1
+author: Aryan Curiel
 ---
 
 ## Run a debate session
@@ -76,8 +77,8 @@ For each round:
    b. Invoke the specialist skill as /specialist-{name} with context containing:
       - [YOUR MEMORY]: {content of their MEMORY.md, if it exists}
       - [CONSTRAINTS]: {formatted constraint list from step 2, if not null}
-      - The idea name and full description
-      - Current readiness breakdown (scores only, not full file)
+      - Round 1: The idea name and full description; current readiness breakdown (scores only)
+        Round 2+: The idea name only; [ROUND_SYNTHESIS] from the previous round's agora-score-round output (skip the full description — the synthesis covers current state)
       - All messages from previous rounds this session (last 10 messages max for context)
       - Messages from earlier this round (so each specialist sees what others said)
       - Instruction: "Build on what others said. Focus on what has NOT been addressed yet."
@@ -225,14 +226,14 @@ For each round:
 
     Run /agora-run-debate {slug} to continue developing this idea.
 
-### Post-session review
+### Post-session review (opt-in)
 
-20. Invoke /agora-review-specialists {slug} automatically.
-    Pass the slug as the argument so the skill resolves the most recent session file.
-    This step is mandatory — do not skip it even if the session ended early.
+20. Print a prompt to the user:
 
-### Hiring review
+    ── Post-session options ───────────────────────
+    • /agora-review-specialists {slug} — review specialist performance, generate improvement proposals
+    • /agora-hire-specialists {slug} — check for coverage gaps, generate job posts
+    (Skip to save tokens — run them manually at any time.)
+    ───────────────────────────────────────────────
 
-21. Invoke /agora-hire-specialists {slug} automatically.
-    Pass the slug as the argument so the skill resolves the most recent session file.
-    This step is mandatory — do not skip it even if the session ended early or no proposals were written in step 20.
+    Do NOT invoke either skill automatically. Wait for the user to trigger them.

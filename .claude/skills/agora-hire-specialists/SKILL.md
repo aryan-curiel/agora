@@ -4,6 +4,7 @@ description: Proposes new specialist agents to hire after a debate session, base
 version: 1.0.0
 argument-hint: "[idea-slug] [session-number]"
 allowed-tools: Read Write Bash
+author: Aryan Curiel
 ---
 
 ## Hire new specialists

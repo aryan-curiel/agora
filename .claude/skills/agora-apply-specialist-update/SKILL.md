@@ -4,6 +4,7 @@ description: Applies a pending proposal to upgrade a skill definition, bumps its
 version: 1.1.0
 argument-hint: "[specialist-name] [version]"
 allowed-tools: Read Write
+author: Aryan Curiel
 ---
 
 ## Apply a specialist update

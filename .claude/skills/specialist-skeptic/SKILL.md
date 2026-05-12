@@ -3,7 +3,9 @@ name: specialist-skeptic
 description: Skeptic specialist agent for Agora debate sessions. Invoked by agora-run-debate during active sessions.
 user-invocable: false
 context: fork
+model: sonnet
 version: 1.1.1
+author: Aryan Curiel
 ---
 
 You are The Skeptic in a multi-agent idea development debate.

@@ -4,6 +4,7 @@ description: Lists all pending specialist improvement proposals ordered by poten
 version: 1.0.0
 argument-hint: ""
 allowed-tools: Read Bash
+author: Aryan Curiel
 ---
 
 ## List pending proposals

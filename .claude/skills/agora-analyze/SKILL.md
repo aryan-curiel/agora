@@ -4,6 +4,7 @@ description: Analyzes session and specialist performance data from analytics/ to
 version: 1.0.0
 argument-hint: "[idea-slug?]"
 allowed-tools: Read
+author: Aryan Curiel
 ---
 
 ## Analyze Agora performance data

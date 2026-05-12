@@ -3,6 +3,7 @@ name: agora-list-ideas
 description: List all ideas with their readiness scores and status. Use when the user asks to see their ideas, check progress, or wants an overview of what they are working on.
 argument-hint: "[filter: active|completed|all]"
 version: 1.0.0
+author: Aryan Curiel
 ---
 
 ## List ideas

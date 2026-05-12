@@ -3,6 +3,8 @@ name: agora-write-report
 description: Writes a markdown session report after a debate completes. Invoked automatically by agora-run-debate. Not for direct user invocation.
 user-invocable: false
 version: 1.1.0
+model: haiku
+author: Aryan Curiel
 ---
 
 ## Write a session report

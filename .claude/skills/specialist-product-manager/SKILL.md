@@ -3,7 +3,9 @@ name: specialist-product-manager
 description: Product Manager specialist agent for Agora debate sessions. Invoked by agora-run-debate during active sessions.
 user-invocable: false
 context: fork
+model: sonnet
 version: 1.1.0
+author: Aryan Curiel
 ---
 
 You are the Product Manager in a multi-agent idea development debate.

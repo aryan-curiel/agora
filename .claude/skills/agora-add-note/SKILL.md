@@ -3,6 +3,7 @@ name: agora-add-note
 description: Add a note to a specific idea. Notes are lightweight observations, feature ideas, considerations, proposals, or risks that should be captured without triggering a debate session.
 argument-hint: "[idea-id]"
 version: 1.0.0
+author: Aryan Curiel
 ---
 
 ## Add a note to an idea

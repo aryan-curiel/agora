@@ -5,6 +5,7 @@ disable-model-invocation: true
 argument-hint: "[idea-id]"
 allowed-tools: Read Write
 version: 1.0.0
+author: Aryan Curiel
 ---
 
 ## Run a brainstorm session

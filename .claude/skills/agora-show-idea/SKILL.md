@@ -3,6 +3,7 @@ name: agora-show-idea
 description: Show the full details of a specific idea including readiness breakdown, constraints, notes, proposals from brainstorm sessions, open questions, and session history. Use when the user wants to inspect, review, or get details about a specific idea.
 argument-hint: "[idea-id or idea name]"
 version: 1.1.0
+author: Aryan Curiel
 ---
 
 ## Show idea details

@@ -4,6 +4,7 @@ description: Add a new idea to Agora. Use when the user wants to add, create, or
 disable-model-invocation: true
 argument-hint: "[idea name]"
 version: 1.1.0
+author: Aryan Curiel
 ---
 
 ## Add a new idea
