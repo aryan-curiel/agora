@@ -760,11 +760,13 @@ layout: two-cols
 
 # Cost Optimization
 
-Agora uses **tiered model routing** to minimize cost without sacrificing quality.
+Each skill declares an **intended model tier** via `model:` in frontmatter.
 
-<div class="text-sm mt-4">
+> ⚠ Claude Code does not currently support per-skill model routing — the field is representational. A routing mechanism is being researched.
 
-| Tier | Model | Skills |
+<div class="text-sm mt-3">
+
+| Tier | Intended model | Skills |
 |---|---|---|
 | Helpers | **Haiku** | lead-specialist · score-round · write-report |
 | Agents | **Sonnet** | all 8 specialists · all 5 dreamers |
@@ -776,19 +778,19 @@ Agora uses **tiered model routing** to minimize cost without sacrificing quality
 
 <div class="ml-4 text-sm">
 
-<v-click>
+**Token savings active today:**
 
-**Additional savings:**
+<v-click>
 
 - Post-session reviews are **opt-in** — skip `/agora-review-specialists` and `/agora-hire-specialists` to save 27K–70K tokens per session.
 
-- **Context trimming** — specialists in rounds 2+ receive only the previous round's synthesis, not the full idea description (~500–1,000 tokens saved per call).
+- **Context trimming** — specialists in rounds 2+ receive only the previous round's synthesis (~500–1,000 tokens saved per call).
 
 </v-click>
 
 <v-click>
 
-**Result:** most of the agent work runs at Sonnet or Haiku prices, while the orchestrator (which holds conversation context) stays on the best available model.
+Once routing is supported, helpers drop to Haiku and specialist calls drop to Sonnet — the biggest cost drivers in any session.
 
 </v-click>
 

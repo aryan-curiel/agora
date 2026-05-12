@@ -69,3 +69,7 @@ A debate session ends when the first of these is hit:
 - Ideas: `ideas/{slug}/README.md` where slug is lowercase-hyphenated name
 - Sessions: `ideas/{slug}/sessions/{slug}-session-{n}-{YYYYMMDD}.md`
 - Brainstorm sessions: `ideas/{slug}/sessions/{slug}-brainstorm-{n}-{YYYYMMDD}.md`
+
+## Model routing (not yet supported)
+
+Skill frontmatters include a `model:` field (e.g. `model: haiku`, `model: sonnet`) that documents the intended model tier for each agent. **Claude Code does not currently support per-skill model routing — all skills run on the active default model regardless of this field.** The field is kept as a design marker for when a routing mechanism becomes available. A solution is being researched.

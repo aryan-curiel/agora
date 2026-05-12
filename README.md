@@ -124,14 +124,16 @@ For **major** structural changes (output format or schema), both skills now prom
 
 ## Cost optimization
 
-Agora uses tiered model routing to keep session costs low:
+Each skill declares an intended model tier via a `model:` field in its frontmatter (e.g. `model: haiku`, `model: sonnet`). **This field is currently representational — Claude Code does not support per-skill model routing, so all skills run on the active default model.** A mechanism for actual routing is being researched.
 
-| Tier | Model | Skills |
+Intended model tiers (will take effect once routing is supported):
+
+| Tier | Intended model | Skills |
 |---|---|---|
 | Helpers | Haiku | `agora-lead-specialist`, `agora-score-round`, `agora-write-report`, `agora-write-brainstorm-report` |
 | Specialists & Dreamers | Sonnet | All `specialist-*` (8) and `dreamer-*` (5) agents |
-| Orchestrators | Default (Opus) | `agora-run-debate`, `agora-brainstorm`, review/hire skills |
+| Orchestrators | Default | `agora-run-debate`, `agora-brainstorm`, review/hire skills |
 
-Additional savings:
+Token savings already active today:
 - **Post-session reviews are opt-in** — skip `/agora-review-specialists` and `/agora-hire-specialists` to save 27K–70K tokens per session.
 - **Context trimming in rounds 2+** — specialists receive the round synthesis instead of the full idea description, saving ~500–1,000 tokens per call.
