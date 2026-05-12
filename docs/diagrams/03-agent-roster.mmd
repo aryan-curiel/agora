@@ -1,17 +1,17 @@
 %%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1e293b", "primaryTextColor": "#f8fafc", "primaryBorderColor": "#475569", "lineColor": "#94a3b8", "secondaryColor": "#0f172a", "background": "#0f172a", "mainBkg": "#1e293b", "nodeBorder": "#475569", "clusterBkg": "#162032", "titleColor": "#f8fafc", "edgeLabelBackground": "#1e293b", "fontFamily": "monospace", "fontSize": "14px"}}}%%
 
 graph TB
-    LA(["agora-lead-specialist\nreads readiness scores\nreturns JSON roster"])
+    LA(["agora-lead-specialist  [Haiku]\nreads readiness scores\nreturns JSON roster"])
 
-    SK["specialist-skeptic\nChallenges assumptions · finds gaps\nAlways included  (90%+ sessions)"]
+    SK["specialist-skeptic  [Sonnet]\nChallenges assumptions · finds gaps\nAlways included  (90%+ sessions)"]
 
-    TL["specialist-tech-lead\nFeasibility · stack · build estimates\nWhen  tech_stack < 6  or  poc_scope < 6"]
-    MKT["specialist-market-analyst\nTarget users · competition · GTM\nWhen  target_user < 6  or  go_to_market < 6"]
-    FIN["specialist-finance\nRevenue models · pricing · budgets\nWhen  monetization < 6  or  budget < 6"]
-    UX["specialist-ux-designer\nUser flows · MVP scope · features\nWhen  core_features < 6  or  poc_scope < 5"]
-    PM["specialist-product-manager\nSuccess metrics · roadmap · scope\nWhen  success_metrics < 5"]
-    LEG["specialist-legal\nCompliance · data privacy · risk\nWhen  fintech / healthtech / user data"]
-    GRW["specialist-growth\nAcquisition · virality · traction\nWhen  go_to_market < 5  or  consumer idea"]
+    TL["specialist-tech-lead  [Sonnet]\nFeasibility · stack · build estimates\nWhen  tech_stack < 6  or  poc_scope < 6"]
+    MKT["specialist-market-analyst  [Sonnet]\nTarget users · competition · GTM\nWhen  target_user < 6  or  go_to_market < 6"]
+    FIN["specialist-finance  [Sonnet]\nRevenue models · pricing · budgets\nWhen  monetization < 6  or  budget < 6"]
+    UX["specialist-ux-designer  [Sonnet]\nUser flows · MVP scope · features\nWhen  core_features < 6  or  poc_scope < 5"]
+    PM["specialist-product-manager  [Sonnet]\nSuccess metrics · roadmap · scope\nWhen  success_metrics < 5"]
+    LEG["specialist-legal  [Sonnet]\nCompliance · data privacy · risk\nWhen  fintech / healthtech / user data"]
+    GRW["specialist-growth  [Sonnet]\nAcquisition · virality · traction\nWhen  go_to_market < 5  or  consumer idea"]
 
     LA -->|"always"| SK
     LA -->|"technical ideas"| TL
@@ -22,7 +22,7 @@ graph TB
     LA -->|"regulated industries"| LEG
     LA -->|"consumer products"| GRW
 
-    NOTE["Roster size: 3–4 specialists\nFirst session default:\nskeptic · tech-lead · market-analyst\n\nConstraints boost priority:\ntech constraints → tech-lead\nbudget constraints → finance\nlegal constraints → legal (always)"]
+    NOTE["Roster size: 3–4 specialists\nFirst session default:\nskeptic · tech-lead · market-analyst\n\nConstraints boost priority:\ntech constraints → tech-lead\nbudget constraints → finance\nlegal constraints → legal (always)\n\nModel tiers:\nLead specialist → Haiku\nAll specialists → Sonnet"]
 
     LA --- NOTE
 

@@ -28,12 +28,12 @@ graph LR
 
     subgraph SKILL_FILE["Skill Definition  (.claude/skills/{specialist}/SKILL.md)"]
         direction TB
-        FRONTMATTER["Frontmatter\nname · version · context: fork\nuser-invocable: false"]
+        FRONTMATTER["Frontmatter\nname · version · context: fork\nmodel: sonnet · author: Aryan Curiel\nuser-invocable: false"]
         BODY["Body\nRole definition\nDebate instructions\nMemory update mode"]
     end
 
     MEM_W -->|"accumulates across\nmultiple sessions"| MEM_R
-    SESSION -->|"user runs after\nany session"| REVIEW_LOOP
+    SESSION -->|"opt-in — user runs\nwhen needed"| REVIEW_LOOP
     APPLY -->|"patches body or instructions"| SKILL_FILE
     SKILL_FILE -->|"governs specialist behavior\neach session"| AGENTS
 

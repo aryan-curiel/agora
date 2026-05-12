@@ -3,11 +3,10 @@
 sequenceDiagram
     actor User
     participant RD as agora-run-debate
-    participant LA as agora-lead-specialist
-    participant SA as Specialists<br/>(roster 3–4)
-    participant SR as agora-score-round
-    participant MA as agora-meta-specialist
-    participant WR as agora-write-report
+    participant LA as agora-lead-specialist<br/>(Haiku)
+    participant SA as Specialists<br/>(roster 3–4, Sonnet)
+    participant SR as agora-score-round<br/>(Haiku)
+    participant WR as agora-write-report<br/>(Haiku)
     participant FS as File System
 
     User->>RD: /agora-run-debate [slug]
@@ -24,16 +23,14 @@ sequenceDiagram
         loop For each specialist in roster
             RD->>FS: Read specialist MEMORY.md (if exists)
             FS-->>RD: specialist memory (or empty)
-            RD->>SA: /specialist-{name} with idea context + prior round messages + memory + [CONSTRAINTS]
+            Note over RD,SA: Round 1: full idea description<br/>Round 2+: idea name + previous round synthesis only
+            RD->>SA: /specialist-{name} with context + prior messages + memory + [CONSTRAINTS]
             SA-->>RD: specialist analysis (250–400 words, respects constraints)
             RD->>RD: Append to round messages list
         end
 
         RD->>SR: /agora-score-round (slug, round messages, current scores, [CONSTRAINTS])
-        SR->>FS: Read ideas/{slug}/README.md
-        SR->>MA: /agora-meta-specialist (idea + previous scores + round messages)
-        MA-->>SR: JSON {scores, synthesis, open_questions, best_answers}
-        SR-->>RD: updated scores, synthesis, questions, constraint_overrides[]
+        SR-->>RD: updated scores, synthesis, open_questions, best_answers
 
         RD->>FS: Update ideas/{slug}/README.md (scores + questions)
         RD->>RD: Print milestone update
@@ -59,3 +56,4 @@ sequenceDiagram
     end
 
     RD-->>User: Session complete summary
+    Note over RD,User: Post-session options (opt-in):<br/>/agora-review-specialists {slug}<br/>/agora-hire-specialists {slug}

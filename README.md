@@ -79,12 +79,14 @@ Brainstorming is the right starting point when an idea needs creative expansion;
 ## How debate sessions work
 
 1. **Lead specialist** reads the idea and selects 3–4 specialists best suited to address the current readiness gaps.
-2. **Debate rounds** (2 for ideas with readiness ≥ 30%, 3 for new ideas) — each specialist analyzes the idea from their perspective, with each specialist seeing what others said earlier in the round.
-3. **Meta specialist** scores all 10 dimensions after each round and produces a synthesis of what was concretely established.
+2. **Debate rounds** (2 for ideas with readiness ≥ 30%, 3 for new ideas) — each specialist analyzes the idea from their perspective. Round 1 receives the full idea description; rounds 2+ receive only the previous round's synthesis to reduce token usage.
+3. **Scoring** happens after each round across all 10 dimensions, producing a synthesis of what was concretely established.
 4. **Milestone updates** are printed after each round showing score progress, dimension breakdown, and open questions.
 5. **Session report** is written to `ideas/{slug}/sessions/` with the full transcript, final scores, and recommendations for the next session.
 
 Sessions end when max rounds are hit, readiness reaches 85%, or the token budget is exceeded.
+
+After the session you'll see opt-in prompts for `/agora-review-specialists` and `/agora-hire-specialists` — run them when you want specialist feedback, skip them to save tokens.
 
 ![Debate Session Flow](docs/diagrams/02-debate-session-flow.png)
 
@@ -100,6 +102,9 @@ name: specialist-{name}
 description: {role} specialist for Agora debate sessions. Invoked by agora-run-debate during active sessions.
 user-invocable: false
 context: fork
+model: sonnet
+author: {your name}
+version: 1.0.0
 ---
 ```
 
@@ -111,8 +116,22 @@ Then update `.claude/skills/agora-lead-specialist/SKILL.md` to include it in the
 
 ## Improving agents over time
 
-After any debate session, run `/agora-review-specialists [slug]` to evaluate each specialist's performance and generate versioned improvement proposals. Then run `/agora-apply-specialist-update [specialist-name]` to apply a proposal.
+Run `/agora-review-specialists [slug]` after any session to evaluate each specialist's performance and generate versioned improvement proposals. Then run `/agora-apply-specialist-update [specialist-name]` to apply a proposal. Both are opt-in — you'll see a prompt at the end of each debate session.
 
 ![Continuous Improvement Loop](docs/diagrams/04-continuous-improvement.png)
 
 For **major** structural changes (output format or schema), both skills now prompt you to validate the new design with `/knowledge-architect` before applying — ensuring structural changes stay consistent with Anthropic architecture best practices.
+
+## Cost optimization
+
+Agora uses tiered model routing to keep session costs low:
+
+| Tier | Model | Skills |
+|---|---|---|
+| Helpers | Haiku | `agora-lead-specialist`, `agora-score-round`, `agora-write-report`, `agora-write-brainstorm-report` |
+| Specialists & Dreamers | Sonnet | All `specialist-*` (8) and `dreamer-*` (5) agents |
+| Orchestrators | Default (Opus) | `agora-run-debate`, `agora-brainstorm`, review/hire skills |
+
+Additional savings:
+- **Post-session reviews are opt-in** — skip `/agora-review-specialists` and `/agora-hire-specialists` to save 27K–70K tokens per session.
+- **Context trimming in rounds 2+** — specialists receive the round synthesis instead of the full idea description, saving ~500–1,000 tokens per call.

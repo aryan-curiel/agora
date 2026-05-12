@@ -219,23 +219,25 @@ Stored in `## Constraints` in the idea file:
 sequenceDiagram
     actor User
     participant RD as run-debate
-    participant LA as lead-specialist
-    participant SA as Specialists
-    participant MA as meta-specialist
+    participant LA as lead-specialist (Haiku)
+    participant SA as Specialists (Sonnet)
+    participant SR as score-round (Haiku)
 
     User->>RD: /agora-run-debate [slug]
     RD->>LA: Select roster
     LA-->>RD: skeptic · tech-lead · market-analyst
 
     loop Each round (2–3)
-        RD->>SA: idea + prior context + memory
+        Note over RD,SA: Round 1: full description · Round 2+: synthesis only
+        RD->>SA: context + prior messages + memory
         SA-->>RD: 250–400 word analysis each
-        RD->>MA: Score 10 dimensions
-        MA-->>RD: Scores + synthesis
+        RD->>SR: Score 10 dimensions
+        SR-->>RD: Scores + synthesis
     end
 
     RD->>RD: Write session report
     RD->>SA: Update specialist memories
+    Note over RD,User: Opt-in: /agora-review-specialists · /agora-hire-specialists
 ```
 
 <!--
@@ -544,7 +546,9 @@ name: specialist-{name}
 description: {Role} specialist for Agora.
 user-invocable: false
 context: fork
-version: "1.0.0"
+model: sonnet
+author: {your name}
+version: 1.0.0
 ---
 ```
 
@@ -590,7 +594,7 @@ Recommends the right mix of Skills, Agents, and Anthropic SDK primitives.
 
 ```mermaid
 graph LR
-    A[Session\nCompletes] -->|user runs| B[review-specialists\nscores performance]
+    A[Session\nCompletes] -->|opt-in prompt| B[review-specialists\nscores performance]
     B -->|severity ≠ none| C["PROPOSAL-v{n}.md\nissues + changes"]
     C -->|user applies| D[apply-specialist-update\npatch + bump version]
     D --> E[CHANGELOG.md]
@@ -606,7 +610,7 @@ layout: two-cols
 
 # Specialist Validation
 
-After every session, `/agora-review-specialists` scores each specialist:
+Run `/agora-review-specialists` after any session to score each specialist (opt-in — prompted at session end):
 
 <div class="text-sm mt-2">
 
@@ -745,6 +749,46 @@ If either fails, no job-post is written.
 <v-click>
 
 > The new specialist is available for the very next session.
+
+</v-click>
+
+</div>
+
+---
+layout: two-cols
+---
+
+# Cost Optimization
+
+Agora uses **tiered model routing** to minimize cost without sacrificing quality.
+
+<div class="text-sm mt-4">
+
+| Tier | Model | Skills |
+|---|---|---|
+| Helpers | **Haiku** | lead-specialist · score-round · write-report |
+| Agents | **Sonnet** | all 8 specialists · all 5 dreamers |
+| Orchestrators | **Default** | run-debate · brainstorm · review · hire |
+
+</div>
+
+::right::
+
+<div class="ml-4 text-sm">
+
+<v-click>
+
+**Additional savings:**
+
+- Post-session reviews are **opt-in** — skip `/agora-review-specialists` and `/agora-hire-specialists` to save 27K–70K tokens per session.
+
+- **Context trimming** — specialists in rounds 2+ receive only the previous round's synthesis, not the full idea description (~500–1,000 tokens saved per call).
+
+</v-click>
+
+<v-click>
+
+**Result:** most of the agent work runs at Sonnet or Haiku prices, while the orchestrator (which holds conversation context) stays on the best available model.
 
 </v-click>
 
