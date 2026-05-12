@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agora — Multi-Agent AI Debate System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { mono: ['JetBrains Mono', 'Fira Code', 'monospace'] },
+          animation: {
+            'fade-up': 'fadeUp 0.6s ease-out forwards',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+          },
+          keyframes: {
+            fadeUp: { from: { opacity: '0', transform: 'translateY(20px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS variables (dark default) ─────────────────────────────── */
+    :root {
+      --bg:        #0a0a0f;
+      --surface:   #111118;
+      --panel:     #16161f;
+      --bd:        #1e1e2e;
+      --bd2:       #1a1a28;
+      --muted:     #3b3b52;
+      --t1:        #e2e2f0;
+      --t2:        #9999b8;
+      --t3:        #6b6b8a;
+      --t4:        #c4c4d8;
+      --code-bg:   #0d0d14;
+      --nav-bg:    rgba(10,10,15,0.92);
+      --row-hover: rgba(255,255,255,0.02);
+      --scrollbar: #2a2a3e;
+      --hl-bg:     linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(56,189,248,0.05) 100%);
+      --hl-bd:     rgba(99,102,241,0.2);
+      --hero-glow: rgba(99,102,241,0.12);
+      --step-num-bg: #1e1e2e;
+      --glow-shadow-p: 0 0 40px rgba(129,140,248,0.15);
+      --glow-shadow-g: 0 0 40px rgba(52,211,153,0.12);
+      --card-hover-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* ── Light theme overrides ─────────────────────────────────────── */
+    html.light {
+      --bg:        #f5f5fb;
+      --surface:   #ffffff;
+      --panel:     #f0f0f8;
+      --bd:        #ddddef;
+      --bd2:       #e5e5f4;
+      --muted:     #c0c0dc;
+      --t1:        #0f0f1e;
+      --t2:        #52527a;
+      --t3:        #8282aa;
+      --t4:        #2a2a50;
+      --code-bg:   #ececf8;
+      --nav-bg:    rgba(245,245,251,0.92);
+      --row-hover: rgba(0,0,0,0.025);
+      --scrollbar: #c4c4e0;
+      --hl-bg:     linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(56,189,248,0.03) 100%);
+      --hl-bd:     rgba(99,102,241,0.18);
+      --hero-glow: rgba(99,102,241,0.07);
+      --step-num-bg: #e5e5f5;
+      --glow-shadow-p: 0 0 40px rgba(129,140,248,0.1);
+      --glow-shadow-g: 0 0 40px rgba(52,211,153,0.08);
+      --card-hover-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    }
+
+    /* ── Base ───────────────────────────────────────────────────────── */
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); transition: background 0.2s, color 0.2s; }
+
+    /* ── Gradient text (accent — same both themes) ─────────────────── */
+    .gradient-text { background: linear-gradient(135deg, #a78bfa 0%, #818cf8 40%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .gradient-green { background: linear-gradient(135deg, #34d399 0%, #10b981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .gradient-purple { background: linear-gradient(135deg, #c084fc 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* ── Themed components ─────────────────────────────────────────── */
+    .card { background: var(--panel); border: 1px solid var(--bd); }
+    .card-hover { transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; }
+    .card-hover:hover { transform: translateY(-2px); border-color: var(--muted); box-shadow: var(--card-hover-shadow); }
+    .code-block { background: var(--code-bg); border: 1px solid var(--bd); font-family: 'JetBrains Mono', monospace; }
+    .nav-backdrop { background: var(--nav-bg); backdrop-filter: blur(12px); }
+    .nav-bd { border-bottom: 1px solid var(--bd); }
+    .nav-link { color: var(--t2); transition: color 0.2s; }
+    .nav-link:hover { color: var(--t1); }
+    .hero-glow { position: absolute; top: -200px; left: 50%; transform: translateX(-50%); width: 800px; height: 600px; background: radial-gradient(ellipse at center, var(--hero-glow) 0%, transparent 70%); pointer-events: none; }
+    .glow-purple { box-shadow: var(--glow-shadow-p); }
+    .glow-green  { box-shadow: var(--glow-shadow-g); }
+    .step-line { width: 1px; height: 48px; background: linear-gradient(to bottom, var(--muted), transparent); margin: 0 auto; }
+    .score-bar { background: var(--bd); border-radius: 4px; overflow: hidden; }
+    .score-fill { height: 6px; border-radius: 4px; transition: width 1s ease-out; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .tag-quick  { background: rgba(52,211,153,0.1);  color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+    .tag-growth { background: rgba(251,191,36,0.1);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+    .tag-moon   { background: rgba(192,132,252,0.1); color: #c084fc; border: 1px solid rgba(192,132,252,0.2); }
+    .section-label { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--t3); font-weight: 600; }
+    .section-divider { border-top: 1px solid var(--bd); }
+    .highlight-box { background: var(--hl-bg); border: 1px solid var(--hl-bd); }
+    .dim-number { font-size: 0.65rem; font-weight: 700; width: 22px; height: 22px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; background: var(--step-num-bg); color: var(--t3); }
+    .t1 { color: var(--t1); }
+    .t2 { color: var(--t2); }
+    .t3 { color: var(--t3); }
+    .t4 { color: var(--t4); }
+    .surface-bg { background: var(--surface); }
+    .panel-bg { background: var(--panel); }
+
+    /* ── Tables ─────────────────────────────────────────────────────── */
+    table { border-collapse: collapse; width: 100%; }
+    th { color: var(--t3); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; padding: 8px 16px; text-align: left; border-bottom: 1px solid var(--bd); }
+    td { padding: 10px 16px; border-bottom: 1px solid var(--bd2); font-size: 0.875rem; color: var(--t4); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--row-hover); }
+
+    /* ── Scrollbar ─────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
+
+    /* ── Tailwind arbitrary-color overrides for light mode ─────────── */
+    /* (Tailwind bakes hex values into the class; we re-map them here)  */
+    html.light .text-white                { color: var(--t1) !important; }
+    html.light .text-\[\#c4c4d8\]         { color: var(--t4) !important; }
+    html.light .text-\[\#9999b8\]         { color: var(--t2) !important; }
+    html.light .text-\[\#6b6b8a\]         { color: var(--t3) !important; }
+    html.light .text-\[\#3b3b52\]         { color: var(--muted) !important; }
+    html.light .border-\[\#1e1e2e\]       { border-color: var(--bd) !important; }
+    html.light .border-\[\#1a1a28\]       { border-color: var(--bd2) !important; }
+    html.light .bg-\[\#111118\]           { background-color: var(--surface) !important; }
+    html.light .bg-\[\#1e1e2e\]           { background-color: var(--step-num-bg) !important; }
+    html.light .border-b.border-\[\#1e1e2e\]  { border-color: var(--bd) !important; }
+    html.light .border-t.border-\[\#1e1e2e\]  { border-color: var(--bd) !important; }
+
+    /* ── Theme toggle button ────────────────────────────────────────── */
+    .theme-btn { cursor: pointer; background: var(--panel); border: 1px solid var(--bd); border-radius: 8px; padding: 6px; color: var(--t2); transition: background 0.2s, border-color 0.2s, color 0.2s; }
+    .theme-btn:hover { border-color: var(--muted); color: var(--t1); }
+    .icon-moon { display: block; }
+    .icon-sun  { display: none; }
+    html.light .icon-moon { display: none; }
+    html.light .icon-sun  { display: block; }
+
+    /* ── Mobile nav ─────────────────────────────────────────────────── */
+    .mobile-nav-link { display: block; padding: 11px 0; color: var(--t2); border-bottom: 1px solid var(--bd2); font-size: 0.9375rem; transition: color 0.15s; }
+    .mobile-nav-link:last-child { border-bottom: none; }
+    .mobile-nav-link:hover { color: var(--t1); }
+
+    /* ── Code blocks always scrollable ──────────────────────────────── */
+    .code-block { overflow-x: auto; }
+
+    /* ── Tables: smaller text + padding on narrow screens ───────────── */
+    @media (max-width: 640px) {
+      td, th { padding: 8px 10px; font-size: 0.78rem; }
+      .font-mono { font-size: 0.72rem !important; }
+    }
+
+    /* ── Reduce hero glow on mobile (perf) ──────────────────────────── */
+    @media (max-width: 640px) {
+      .hero-glow { width: 320px; height: 320px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="fixed top-0 left-0 right-0 z-50 nav-backdrop nav-bd">
+  <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+    <!-- Logo -->
+    <div class="flex items-center gap-3">
+      <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, #6366f1, #38bdf8);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <span class="font-semibold t1 tracking-tight">Agora</span>
+      <span class="badge hidden sm:inline-flex" style="background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.2);">multi-agent</span>
+    </div>
+    <!-- Desktop nav -->
+    <div class="hidden md:flex items-center gap-6 text-sm">
+      <a href="#how-it-works" class="nav-link">How it works</a>
+      <a href="#modes" class="nav-link">Modes</a>
+      <a href="#specialists" class="nav-link">Specialists</a>
+      <a href="#scoring" class="nav-link">Scoring</a>
+      <a href="#commands" class="nav-link">Commands</a>
+      <a href="#extend" class="nav-link">Extend</a>
+      <a href="#quickstart" class="nav-link font-medium" style="color:#818cf8;">Get started →</a>
+      <a href="https://github.com/aryan-curiel/agora" target="_blank" rel="noopener" class="nav-link flex items-center gap-1.5" aria-label="GitHub repository">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        GitHub
+      </a>
+      <button class="theme-btn" aria-label="Toggle theme">
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+    <!-- Mobile controls -->
+    <div class="flex md:hidden items-center gap-2">
+      <a href="https://github.com/aryan-curiel/agora" target="_blank" rel="noopener" class="theme-btn flex items-center" aria-label="GitHub">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      </a>
+      <button class="theme-btn" aria-label="Toggle theme">
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button id="mobile-menu-btn" class="theme-btn" aria-label="Open menu" aria-expanded="false">
+        <svg id="icon-hamburger" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg id="icon-close" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+<!-- Mobile menu panel -->
+<div id="mobile-menu" class="hidden fixed top-14 left-0 right-0 z-40 nav-backdrop md:hidden px-6 py-3" style="border-bottom:1px solid var(--bd);">
+  <a href="#how-it-works" class="mobile-nav-link">How it works</a>
+  <a href="#modes" class="mobile-nav-link">Modes</a>
+  <a href="#specialists" class="mobile-nav-link">Specialists</a>
+  <a href="#scoring" class="mobile-nav-link">Scoring</a>
+  <a href="#commands" class="mobile-nav-link">Commands</a>
+  <a href="#extend" class="mobile-nav-link">Extend</a>
+  <a href="#quickstart" class="mobile-nav-link font-medium" style="color:#818cf8;">Get started →</a>
+</div>
+
+<!-- Hero -->
+<section class="relative pt-24 pb-16 md:pt-32 md:pb-28 px-6 overflow-hidden">
+  <div class="hero-glow"></div>
+  <div class="max-w-4xl mx-auto text-center relative">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm mb-6 md:mb-8 font-mono surface-bg" style="border:1px solid var(--bd);color:#818cf8;">
+      <span class="w-2 h-2 rounded-full animate-pulse-slow" style="background:#818cf8;"></span>
+      Claude Code Skill System
+    </div>
+    <h1 class="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-5 md:mb-6 leading-none">
+      <span class="t1">Ideas deserve</span><br/>
+      <span class="gradient-text">a real debate.</span>
+    </h1>
+    <p class="text-base sm:text-lg md:text-xl t2 max-w-2xl mx-auto leading-relaxed mb-8 md:mb-10">
+      Agora is a multi-agent AI system that turns rough concepts into fully planned PoC specs —
+      through structured debate between specialist agents, scored across 10 readiness dimensions.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="#quickstart" class="px-6 py-3 rounded-lg font-semibold text-white text-sm" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+        Get started
+      </a>
+      <a href="#how-it-works" class="px-6 py-3 rounded-lg font-semibold text-sm card card-hover">
+        See how it works
+      </a>
+      <a href="https://github.com/aryan-curiel/agora" target="_blank" rel="noopener" class="px-6 py-3 rounded-lg font-semibold text-sm flex items-center gap-2 card card-hover t2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 mt-12 md:mt-20 max-w-3xl mx-auto">
+      <div class="text-center"><div class="text-2xl font-black t1">8</div><div class="text-xs t3 mt-1">Specialists</div></div>
+      <div class="text-center"><div class="text-2xl font-black t1">5</div><div class="text-xs t3 mt-1">Dreamers</div></div>
+      <div class="text-center"><div class="text-2xl font-black t1">10</div><div class="text-xs t3 mt-1">Dimensions</div></div>
+      <div class="text-center"><div class="text-2xl font-black t1">85%</div><div class="text-xs t3 mt-1">Ready threshold</div></div>
+      <div class="text-center"><div class="text-2xl font-black t1">0</div><div class="text-xs t3 mt-1">Servers needed</div></div>
+      <div class="text-center"><div class="text-2xl font-black t1">∞</div><div class="text-xs t3 mt-1">Ideas</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Problem -->
+<section class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">The problem</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">One AI voice isn't enough.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">Getting from "cool idea" to "here's what to build" requires many different lenses — simultaneously. Most tools give you a single perspective that tends to agree with you.</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="card rounded-xl p-6" style="border-left:3px solid rgba(239,68,68,0.5);">
+        <div class="text-sm font-semibold mb-3" style="color:#f87171;">Without Agora</div>
+        <ul class="space-y-3 text-sm t2">
+          <li class="flex gap-3"><span style="color:#f87171;margin-top:2px;">✗</span><span>Single AI voice — agrees with you, misses blind spots</span></li>
+          <li class="flex gap-3"><span style="color:#f87171;margin-top:2px;">✗</span><span>No structure — ideas stay as vague notes forever</span></li>
+          <li class="flex gap-3"><span style="color:#f87171;margin-top:2px;">✗</span><span>Tech, market, risk, UX, finance — each needs separate sessions</span></li>
+          <li class="flex gap-3"><span style="color:#f87171;margin-top:2px;">✗</span><span>No score — you never know when an idea is truly "ready"</span></li>
+        </ul>
+      </div>
+      <div class="card rounded-xl p-6" style="border-left:3px solid rgba(52,211,153,0.5);">
+        <div class="text-sm font-semibold mb-3" style="color:#34d399;">With Agora</div>
+        <ul class="space-y-3 text-sm t2">
+          <li class="flex gap-3"><span style="color:#34d399;margin-top:2px;">✓</span><span>3–4 specialists with competing goals argue your idea</span></li>
+          <li class="flex gap-3"><span style="color:#34d399;margin-top:2px;">✓</span><span>Structured output: 10-dimension readiness score every session</span></li>
+          <li class="flex gap-3"><span style="color:#34d399;margin-top:2px;">✓</span><span>One command — specialists are auto-selected by your gaps</span></li>
+          <li class="flex gap-3"><span style="color:#34d399;margin-top:2px;">✓</span><span>≥85% readiness = PoC spec ready to build, no guessing</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modes -->
+<section id="modes" class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">Two modes</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">Explore first. Build second.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">Brainstorm expands your possibility space without pressure. Debate drives structural decisions and pushes readiness scores.</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="card card-hover rounded-xl p-8 glow-green">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <div>
+            <div class="font-bold t1">Brainstorm</div>
+            <div class="text-xs font-mono" style="color:#34d399;">/agora-brainstorm</div>
+          </div>
+        </div>
+        <p class="text-sm t2 mb-5">5 dreamers with complementary generative lenses diverge freely across 3 rounds. Proposals are organized by time horizon. <strong class="t4">No readiness scoring — pure creative expansion.</strong></p>
+        <div class="flex gap-2 flex-wrap">
+          <span class="badge tag-quick">Quick Wins</span>
+          <span class="badge tag-growth">Growth Features</span>
+          <span class="badge tag-moon">Moonshots</span>
+        </div>
+        <div class="code-block rounded-lg p-3 mt-5 text-xs" style="color:#818cf8;">"Brainstorm on my invoice idea"</div>
+      </div>
+      <div class="card card-hover rounded-xl p-8 glow-purple">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.2);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+          </div>
+          <div>
+            <div class="font-bold t1">Debate</div>
+            <div class="text-xs font-mono" style="color:#818cf8;">/agora-run-debate</div>
+          </div>
+        </div>
+        <p class="text-sm t2 mb-5">3–4 specialists are auto-selected based on your readiness gaps. They argue across 2–3 rounds. A meta-specialist scores 10 dimensions after each round. <strong class="t4">Drives structural decisions and readiness scores.</strong></p>
+        <div class="flex gap-2 flex-wrap">
+          <span class="badge" style="background:rgba(129,140,248,0.1);color:#818cf8;border:1px solid rgba(129,140,248,0.2);">Auto-selected roster</span>
+          <span class="badge" style="background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);">Scored per round</span>
+        </div>
+        <div class="code-block rounded-lg p-3 mt-5 text-xs" style="color:#818cf8;">"Run a debate on my invoice idea"</div>
+      </div>
+    </div>
+    <p class="text-center text-sm t3 mt-6">Start with Brainstorm to explore → use Debate to build toward 85% readiness</p>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how-it-works" class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">How it works</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">From rough idea to PoC spec in three steps.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-16 max-w-2xl">Natural language throughout — Claude Code picks the right skill automatically.</p>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card rounded-xl p-7">
+        <div class="text-5xl font-black t3 mb-4 leading-none" style="opacity:.4;">01</div>
+        <h3 class="text-lg font-bold t1 mb-2">Add an Idea</h3>
+        <p class="text-sm t2 mb-4">Describe your idea in plain language. Agora asks 9 targeted questions — one per readiness dimension. Answer what you know, skip the rest.</p>
+        <div class="code-block rounded-lg p-4 text-xs space-y-1">
+          <div class="t3"># natural language</div>
+          <div style="color:#818cf8;">"Add an idea: SaaS invoice tool for freelancers"</div>
+          <div class="t3 mt-2"># or slash command</div>
+          <div style="color:#34d399;">/agora-add-idea invoice-saas</div>
+        </div>
+        <div class="mt-4 text-xs t3">→ Writes <code style="color:#818cf8;">ideas/invoice-saas/README.md</code> with initial scores</div>
+      </div>
+      <div class="card rounded-xl p-7" style="border-color:rgba(129,140,248,0.35);">
+        <div class="text-5xl font-black t3 mb-4 leading-none" style="opacity:.4;">02</div>
+        <h3 class="text-lg font-bold t1 mb-2">Run a Session</h3>
+        <p class="text-sm t2 mb-4">Specialists are auto-selected based on your gaps. They debate 2–3 rounds. A meta-specialist scores all 10 dimensions after each round.</p>
+        <div class="code-block rounded-lg p-4 text-xs space-y-1">
+          <div class="t3"># brainstorm first</div>
+          <div style="color:#34d399;">"Brainstorm on my invoice idea"</div>
+          <div class="t3 mt-2"># then debate</div>
+          <div style="color:#818cf8;">"Run a debate on my invoice idea"</div>
+        </div>
+        <div class="mt-4 text-xs t3">→ Session ends at 85% readiness or max rounds</div>
+      </div>
+      <div class="card rounded-xl p-7" style="border-color:rgba(52,211,153,0.35);">
+        <div class="text-5xl font-black t3 mb-4 leading-none" style="opacity:.4;">03</div>
+        <h3 class="text-lg font-bold t1 mb-2">Read the Report</h3>
+        <p class="text-sm t2 mb-4">Full session transcript, final readiness scores, synthesis, open questions, and next-session recommendations — all in markdown.</p>
+        <div class="code-block rounded-lg p-4 text-xs space-y-1">
+          <div class="t3"># inspect idea</div>
+          <div style="color:#34d399;">"Show me my invoice idea"</div>
+          <div class="t3 mt-2"># list all ideas</div>
+          <div style="color:#818cf8;">"Show me my ideas"</div>
+        </div>
+        <div class="mt-4 text-xs t3">→ Report at <code style="color:#818cf8;">ideas/{slug}/sessions/</code></div>
+      </div>
+    </div>
+
+    <!-- Debate flow -->
+    <div class="mt-16">
+      <h3 class="text-xl font-bold t1 mb-6">Debate session internals</h3>
+      <div class="card rounded-xl p-6">
+        <div class="flex flex-col md:flex-row gap-4 items-start">
+          <div class="flex-1 space-y-3">
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5" style="background:var(--step-num-bg);color:#818cf8;">1</div>
+              <div><div class="font-semibold t1 text-sm">Lead specialist selects roster</div><div class="text-xs t2 mt-1">Reads your idea's current readiness scores and picks 3–4 specialists best suited to address the open gaps. Skeptic is always included.</div></div>
+            </div>
+            <div class="step-line"></div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5" style="background:var(--step-num-bg);color:#818cf8;">2</div>
+              <div><div class="font-semibold t1 text-sm">Specialists debate (2–3 rounds)</div><div class="text-xs t2 mt-1">Each specialist sees what others said earlier in the round — they challenge, build, and push back. 250–400 words per specialist per round.</div></div>
+            </div>
+            <div class="step-line"></div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5" style="background:var(--step-num-bg);color:#818cf8;">3</div>
+              <div><div class="font-semibold t1 text-sm">Meta-specialist scores after each round</div><div class="text-xs t2 mt-1">All 10 readiness dimensions scored 0–10 after each round, with a synthesis and list of still-open questions.</div></div>
+            </div>
+            <div class="step-line"></div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5" style="background:#34d399;color:#0a0a0f;">4</div>
+              <div><div class="font-semibold t1 text-sm">Session report written</div><div class="text-xs t2 mt-1">Full transcript + final scores + next-session recommendations. Specialist memories updated for richer analysis next time.</div></div>
+            </div>
+          </div>
+          <div class="md:w-56 shrink-0">
+            <div class="card rounded-lg p-4 text-xs space-y-3">
+              <div class="t3 font-semibold uppercase tracking-wider" style="font-size:.6rem;">Termination rules</div>
+              <div class="flex items-start gap-2"><span style="color:#818cf8;">→</span><span class="t2">Readiness hits <span class="t1">85%</span></span></div>
+              <div class="flex items-start gap-2"><span style="color:#818cf8;">→</span><span class="t2">Max rounds reached<br/><span class="t3">3 rounds (new) · 2 rounds (≥30%)</span></span></div>
+              <div class="flex items-start gap-2"><span style="color:#818cf8;">→</span><span class="t2">Token budget exceeded<br/><span class="t3">default: 40,000 tokens</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Brainstorm flow -->
+    <div class="mt-10">
+      <h3 class="text-xl font-bold t1 mb-6">Brainstorm session internals</h3>
+      <div class="card rounded-xl p-6">
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="card rounded-lg p-4 text-sm">
+            <div class="font-semibold mb-2" style="color:#34d399;">Round 1 — Free divergence</div>
+            <p class="text-xs t2">All 5 dreamers generate proposals freely. No constraints, no cross-referencing. Tagged by horizon.</p>
+          </div>
+          <div class="card rounded-lg p-4 text-sm" style="border-color:rgba(251,191,36,0.25);">
+            <div class="font-semibold mb-2" style="color:#fbbf24;">Round 2 — Cross-pollination</div>
+            <p class="text-xs t2">Each dreamer <strong class="t4">must build on</strong> someone else's proposal. The skeptic reviews all proposals and asks 2 sharp questions.</p>
+          </div>
+          <div class="card rounded-lg p-4 text-sm" style="border-color:rgba(192,132,252,0.25);">
+            <div class="font-semibold mb-2" style="color:#c084fc;">Round 3 — Fill thin horizons</div>
+            <p class="text-xs t2">Dreamers target whichever time horizon has the fewest proposals. Skeptic grounds again after this round.</p>
+          </div>
+        </div>
+        <div class="mt-4 p-3 rounded-lg text-xs t2" style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.15);">
+          <strong style="color:#34d399;">All 3 rounds always run</strong> — no early exit in brainstorm mode. The skeptic flags broken proposals but has no veto power. Proposals merge into the idea file under <code style="color:#818cf8;">## Proposals</code>.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Specialists -->
+<section id="specialists" class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">The roster</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">Specialists & Dreamers</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">Specialists are selected per-session based on your idea's gaps. Dreamers all run in every brainstorm session.</p>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-8 h-8 rounded-md flex items-center justify-center" style="background:rgba(129,140,248,0.1);border:1px solid rgba(129,140,248,0.2);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold t1">Debate Specialists</h3>
+          <span class="badge" style="background:rgba(129,140,248,0.1);color:#818cf8;border:1px solid rgba(129,140,248,0.2);">auto-selected</span>
+        </div>
+        <div class="card rounded-xl overflow-hidden">
+          <table>
+            <thead><tr><th>Specialist</th><th>Selected when</th></tr></thead>
+            <tbody>
+              <tr><td><span class="font-semibold t1">Skeptic</span></td><td style="color:#818cf8;">Always included</td></tr>
+              <tr><td><span class="font-semibold t1">Tech Lead</span></td><td>tech_stack &lt; 6 or poc_scope &lt; 6</td></tr>
+              <tr><td><span class="font-semibold t1">Market Analyst</span></td><td>target_user &lt; 6 or go_to_market &lt; 6</td></tr>
+              <tr><td><span class="font-semibold t1">Finance</span></td><td>monetization &lt; 6 or budget &lt; 6</td></tr>
+              <tr><td><span class="font-semibold t1">UX Designer</span></td><td>core_features &lt; 6 or poc_scope &lt; 5</td></tr>
+              <tr><td><span class="font-semibold t1">Product Manager</span></td><td>success_metrics &lt; 5</td></tr>
+              <tr><td><span class="font-semibold t1">Legal</span></td><td>fintech / healthtech / user data</td></tr>
+              <tr><td><span class="font-semibold t1">Growth</span></td><td>go_to_market &lt; 5 or consumer idea</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs t3 mt-3">Roster size: 3–4 specialists per session. Memories persist across sessions — analysis gets richer over time automatically.</p>
+      </div>
+      <div>
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-8 h-8 rounded-md flex items-center justify-center" style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold t1">Brainstorm Dreamers</h3>
+          <span class="badge tag-quick">all 5 run</span>
+        </div>
+        <div class="space-y-3">
+          <div class="card card-hover rounded-xl p-5 flex gap-4"><div class="text-xl mt-0.5">🔮</div><div><div class="font-semibold t1 text-sm">Futurist</div><div class="text-xs t2 mt-1">10-year horizon. Emerging tech, paradigm shifts, moonshots. Makes bold claims about where the world is going.</div></div></div>
+          <div class="card card-hover rounded-xl p-5 flex gap-4"><div class="text-xl mt-0.5">🔨</div><div><div class="font-semibold t1 text-sm">Builder</div><div class="text-xs t2 mt-1">Execution-first. What can ship in a sprint? Technical feasibility and MVP cuts. Makes vague ideas concrete.</div></div></div>
+          <div class="card card-hover rounded-xl p-5 flex gap-4"><div class="text-xl mt-0.5">👤</div><div><div class="font-semibold t1 text-sm">User Advocate</div><div class="text-xs t2 mt-1">Human-centered. Jobs-to-be-done, friction, delight. Surfaces the emotional and behavioral reality of users.</div></div></div>
+          <div class="card card-hover rounded-xl p-5 flex gap-4"><div class="text-xl mt-0.5">🔗</div><div><div class="font-semibold t1 text-sm">Connector</div><div class="text-xs t2 mt-1">Cross-domain. Analogies from other industries, unexpected pairings. Finds patterns others miss.</div></div></div>
+          <div class="card card-hover rounded-xl p-5 flex gap-4"><div class="text-xl mt-0.5">📖</div><div><div class="font-semibold t1 text-sm">Narrativist</div><div class="text-xs t2 mt-1">Story-first. Positioning, naming, why it sticks. Crafts the narrative that makes people care about the idea.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Scoring -->
+<section id="scoring" class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">Readiness scoring</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">10 dimensions. One number.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">Each dimension is scored 0–10 by the meta-specialist after every round. Overall readiness = average × 10%. <strong class="t1">≥85% means the idea is ready to build.</strong></p>
+    <div class="grid md:grid-cols-2 gap-3 mb-10">
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">1</span><div><div class="font-semibold t1 text-sm">Problem Statement</div><div class="text-xs t2 mt-1">Is the problem clearly defined? Is there a specific pain point with evidence?</div></div></div>
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">2</span><div><div class="font-semibold t1 text-sm">Target User</div><div class="text-xs t2 mt-1">Is the target persona specific? Does the user profile have real behavioral detail?</div></div></div>
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">3</span><div><div class="font-semibold t1 text-sm">Core Features</div><div class="text-xs t2 mt-1">Is the MVP feature set scoped? Are must-have vs. nice-to-have features separated?</div></div></div>
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">4</span><div><div class="font-semibold t1 text-sm">Tech Stack</div><div class="text-xs t2 mt-1">Has the technology approach been decided? Are key architectural choices made?</div></div></div>
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">5</span><div><div class="font-semibold t1 text-sm">Go to Market</div><div class="text-xs t2 mt-1">Is there a concrete first distribution plan? Who are the first 10 users and how do you reach them?</div></div></div>
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">6</span><div><div class="font-semibold t1 text-sm">Key Risks</div><div class="text-xs t2 mt-1">Have main risks been identified and addressed? Are there mitigation plans for showstoppers?</div></div></div>
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">7</span><div><div class="font-semibold t1 text-sm">PoC Scope</div><div class="text-xs t2 mt-1">Is the minimum provable concept defined? Can the core hypothesis be tested without a full build-out?</div></div></div>
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">8</span><div><div class="font-semibold t1 text-sm">Success Metrics</div><div class="text-xs t2 mt-1">Are measurable success criteria defined? Do they directly validate the core hypothesis?</div></div></div>
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">9</span><div><div class="font-semibold t1 text-sm">Monetization</div><div class="text-xs t2 mt-1">Is there a revenue model? (Mark N/A for personal/OSS projects — won't count against score.)</div></div></div>
+      <div class="card rounded-xl p-5 flex items-start gap-4 card-hover"><span class="dim-number">10</span><div><div class="font-semibold t1 text-sm">Budget Estimates</div><div class="text-xs t2 mt-1">Are rough cost/effort estimates available per phase? Is it clear what's needed to build the PoC?</div></div></div>
+    </div>
+    <!-- Example score card -->
+    <div class="highlight-box rounded-xl p-6">
+      <div class="flex items-center justify-between mb-5">
+        <div><div class="font-bold t1">Example: Agora idea after 1 session</div><div class="text-xs t3 mt-1">ideas/agora/README.md</div></div>
+        <div class="text-right"><div class="text-3xl font-black t1">85%</div><div class="text-xs font-semibold" style="color:#34d399;">Ready to build ✓</div></div>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">Problem Statement</span><div class="score-bar flex-1"><div class="score-fill" style="width:90%;background:linear-gradient(to right,#34d399,#10b981)"></div></div><span class="text-xs w-6" style="color:#34d399;">9</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">Target User</span><div class="score-bar flex-1"><div class="score-fill" style="width:80%;background:linear-gradient(to right,#34d399,#10b981)"></div></div><span class="text-xs w-6" style="color:#34d399;">8</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">Core Features</span><div class="score-bar flex-1"><div class="score-fill" style="width:90%;background:linear-gradient(to right,#818cf8,#6366f1)"></div></div><span class="text-xs w-6" style="color:#818cf8;">9</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">Tech Stack</span><div class="score-bar flex-1"><div class="score-fill" style="width:90%;background:linear-gradient(to right,#818cf8,#6366f1)"></div></div><span class="text-xs w-6" style="color:#818cf8;">9</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">Go to Market</span><div class="score-bar flex-1"><div class="score-fill" style="width:70%;background:linear-gradient(to right,#fbbf24,#f59e0b)"></div></div><span class="text-xs w-6" style="color:#fbbf24;">7</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">Key Risks</span><div class="score-bar flex-1"><div class="score-fill" style="width:80%;background:linear-gradient(to right,#34d399,#10b981)"></div></div><span class="text-xs w-6" style="color:#34d399;">8</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">PoC Scope</span><div class="score-bar flex-1"><div class="score-fill" style="width:90%;background:linear-gradient(to right,#34d399,#10b981)"></div></div><span class="text-xs w-6" style="color:#34d399;">9</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">Success Metrics</span><div class="score-bar flex-1"><div class="score-fill" style="width:80%;background:linear-gradient(to right,#34d399,#10b981)"></div></div><span class="text-xs w-6" style="color:#34d399;">8</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">Monetization</span><div class="score-bar flex-1"><div class="score-fill" style="width:70%;background:linear-gradient(to right,#fbbf24,#f59e0b)"></div></div><span class="text-xs w-6" style="color:#fbbf24;">7</span></div>
+        <div class="flex items-center gap-3"><span class="text-xs t2 w-24 sm:w-36 shrink-0">Budget Estimates</span><div class="score-bar flex-1"><div class="score-fill" style="width:90%;background:linear-gradient(to right,#818cf8,#6366f1)"></div></div><span class="text-xs w-6" style="color:#818cf8;">9</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Constraints -->
+<section class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">Hard constraints</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">Lock in your requirements.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">Add hard constraints to any idea before running a session. Every specialist receives them in context and must operate within them — or explicitly propose an override with a justification.</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <div class="code-block rounded-xl p-5 text-sm space-y-2">
+          <div class="t3 text-xs mb-3">Adding a constraint</div>
+          <div style="color:#818cf8;">"Add a constraint to my invoice idea"</div>
+          <div class="t3 mt-3 text-xs">→ What is the constraint?</div>
+          <div class="t4">Must use Next.js + Supabase</div>
+          <div class="t3 text-xs">→ Rationale?</div>
+          <div class="t4">Team already knows these tools</div>
+        </div>
+        <div class="card rounded-xl p-4 mt-4 text-xs space-y-2">
+          <div class="t3 font-semibold uppercase tracking-wider mb-2" style="font-size:.6rem;">Stored in idea file</div>
+          <div class="flex justify-between t2 pb-2" style="border-bottom:1px solid var(--bd);"><span class="font-semibold">Constraint</span><span class="font-semibold">Rationale</span></div>
+          <div class="flex justify-between"><span class="t4">Must use Next.js + Supabase</span><span class="t3">Team expertise</span></div>
+          <div class="flex justify-between"><span class="t4">PoC budget ≤ $500</span><span class="t3">Bootstrapped</span></div>
+        </div>
+      </div>
+      <div class="card rounded-xl p-6">
+        <div class="font-semibold t1 mb-3 text-sm">During debates, specialists may only override using the explicit marker:</div>
+        <div class="code-block rounded-lg p-4 text-xs" style="color:#fbbf24;">
+          ⚠ CONSTRAINT OVERRIDE: "Must use Next.js"<br/>
+          — Vue.js would cut PoC time by 3 weeks<br/>
+          &nbsp;&nbsp;given the data-binding complexity here
+        </div>
+        <div class="mt-4 space-y-2 text-xs t2">
+          <div class="flex gap-2"><span style="color:#818cf8;">→</span><span>Override proposals are surfaced in the round synthesis</span></div>
+          <div class="flex gap-2"><span style="color:#818cf8;">→</span><span>Logged in the session report for review</span></div>
+          <div class="flex gap-2"><span style="color:#818cf8;">→</span><span>Never silent — always explicitly flagged</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Continuous improvement -->
+<section class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">Continuous improvement</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">Specialists get better over time.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">After every session, run a review to score specialist performance and generate improvement proposals. Apply them when ready.</p>
+    <div class="card rounded-xl p-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 items-start">
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+          </div>
+          <div class="font-semibold t1 text-sm">Session Completes</div>
+          <div class="text-xs t3 mt-1">Transcript + scores written to sessions/</div>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          </div>
+          <div class="font-semibold t1 text-sm">Review Specialists</div>
+          <div class="code-block rounded px-2 py-1 text-xs mt-1 inline-block" style="color:#fbbf24;">/agora-review-specialists</div>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="font-semibold t1 text-sm">Apply Proposal</div>
+          <div class="code-block rounded px-2 py-1 text-xs mt-1 inline-block" style="color:#34d399;">/agora-apply-specialist-update</div>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.2);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </div>
+          <div class="font-semibold t1 text-sm">Next Session</div>
+          <div class="text-xs t3 mt-1">Improved specialist participates automatically</div>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-5 mt-8 pt-8" style="border-top:1px solid var(--bd);">
+        <div>
+          <div class="text-sm font-semibold t1 mb-3">Review criteria</div>
+          <div class="space-y-2 text-xs t2">
+            <div class="flex justify-between"><span>Adherence</span><span class="t3">Followed role and output structure?</span></div>
+            <div class="flex justify-between"><span>Specificity</span><span class="t3">Named real tools, numbers, companies?</span></div>
+            <div class="flex justify-between"><span>Novelty</span><span class="t3">Added new info each round?</span></div>
+            <div class="flex justify-between"><span>Responsiveness</span><span class="t3">Built on what others said?</span></div>
+            <div class="flex justify-between"><span>Impact</span><span class="t3">Raised any readiness score?</span></div>
+            <div class="flex justify-between"><span>Word count</span><span class="t3">Stayed within 250–400 words?</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="text-sm font-semibold t1 mb-3">Severity & version bump</div>
+          <div class="space-y-2 text-xs">
+            <div class="flex gap-3"><span class="badge" style="background:var(--step-num-bg);color:var(--t2);border:1px solid var(--bd);">none</span><span class="t2">Performed as expected, no action</span></div>
+            <div class="flex gap-3"><span class="badge" style="background:rgba(59,130,246,0.1);color:#60a5fa;border:1px solid rgba(59,130,246,0.2);">minor</span><span class="t2">Small wording or example fix → patch</span></div>
+            <div class="flex gap-3"><span class="badge" style="background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);">moderate</span><span class="t2">Behavior gap → minor version</span></div>
+            <div class="flex gap-3"><span class="badge" style="background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);">major</span><span class="t2">Consistent underperformance → major</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Hire new -->
+    <div class="mt-8 card rounded-xl p-6">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.2);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="font-bold t1 mb-1">Hiring new specialists</div>
+          <p class="text-sm t2 mb-4">After any session, <code style="color:#818cf8;">/agora-hire-specialists</code> scans for coverage gaps. Two mandatory filters must both pass before a job-post is written.</p>
+          <div class="grid md:grid-cols-2 gap-3 text-xs">
+            <div class="card rounded-lg p-3"><div class="font-semibold mb-1" style="color:#c084fc;">Filter 1 — Session impact</div><div class="t2">Would this specialist materially change the next session's outcome?</div></div>
+            <div class="card rounded-lg p-3"><div class="font-semibold mb-1" style="color:#c084fc;">Filter 2 — Reusability</div><div class="t2">Would &gt;50% of future ideas benefit from this specialist?</div></div>
+          </div>
+          <p class="text-xs t3 mt-3">If approved → <code style="color:#818cf8;">/agora-build-specialist</code> runs 4 web searches, fetches 4–6 credible sources, synthesizes domain knowledge, and writes a research-grounded SKILL.md. Available for the very next session.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Commands -->
+<section id="commands" class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">Commands reference</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">Natural language or slash commands.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">Every action has both a natural language form and a precise slash command. Claude picks the right skill automatically.</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <div class="text-sm font-semibold mb-3 flex items-center gap-2" style="color:#818cf8;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Core workflow
+        </div>
+        <div class="card rounded-xl overflow-hidden">
+          <table>
+            <thead><tr><th>Slash command</th><th>Natural language</th></tr></thead>
+            <tbody>
+              <tr><td class="font-mono" style="color:#34d399;">/agora-add-idea</td><td>"Add an idea: [describe it]"</td></tr>
+              <tr><td class="font-mono" style="color:#34d399;">/agora-add-constraint</td><td>"Add a constraint to my [name] idea"</td></tr>
+              <tr><td class="font-mono" style="color:#34d399;">/agora-add-note</td><td>"Add a note to my [name] idea"</td></tr>
+              <tr><td class="font-mono" style="color:#34d399;">/agora-brainstorm</td><td>"Brainstorm on my [name] idea"</td></tr>
+              <tr><td class="font-mono" style="color:#34d399;">/agora-run-debate</td><td>"Run a debate on my [name] idea"</td></tr>
+              <tr><td class="font-mono" style="color:#34d399;">/agora-list-ideas</td><td>"Show me my ideas"</td></tr>
+              <tr><td class="font-mono" style="color:#34d399;">/agora-show-idea</td><td>"Show me the [name] idea"</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="text-sm font-semibold mb-3 flex items-center gap-2" style="color:#fbbf24;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Improvement pipeline
+        </div>
+        <div class="card rounded-xl overflow-hidden">
+          <table>
+            <thead><tr><th>Slash command</th><th>Natural language</th></tr></thead>
+            <tbody>
+              <tr><td class="font-mono" style="color:#fbbf24;">/agora-review-specialists</td><td>"Review specialists from the [slug] session"</td></tr>
+              <tr><td class="font-mono" style="color:#fbbf24;">/agora-list-proposals</td><td>"Show me pending proposals"</td></tr>
+              <tr><td class="font-mono" style="color:#fbbf24;">/agora-apply-specialist-update</td><td>"Apply the [name] update"</td></tr>
+              <tr><td class="font-mono" style="color:#fbbf24;">/agora-analyze</td><td>"Analyze my sessions"</td></tr>
+              <tr><td class="font-mono" style="color:#fbbf24;">/agora-hire-specialists</td><td>"Check if we need new specialists"</td></tr>
+              <tr><td class="font-mono" style="color:#fbbf24;">/agora-build-specialist</td><td>"Build the [slug] specialist"</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4">
+          <div class="text-sm font-semibold mb-3 flex items-center gap-2" style="color:#c084fc;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            Advanced
+          </div>
+          <div class="card rounded-xl overflow-hidden">
+            <table>
+              <thead><tr><th>Slash command</th><th>Use when</th></tr></thead>
+              <tbody>
+                <tr><td class="font-mono" style="color:#c084fc;">/knowledge-architect</td><td>"What architecture should I use for..."</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- File structure -->
+<section class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">File structure</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">Everything is plain text.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">No database, no server, no deployment. Everything lives on disk as markdown files — inspectable, version-controlled, and portable.</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="code-block rounded-xl p-6 text-sm leading-relaxed">
+        <div class="t3 text-xs mb-4 font-semibold uppercase tracking-wider">Project layout</div>
+        <div class="t4">agora/</div>
+        <div class="t4 pl-4">├── <span style="color:#fbbf24;">ideas_index.md</span><span class="t3 text-xs">    ← master index</span></div>
+        <div class="t4 pl-4">├── ideas/<span style="color:#818cf8;">{slug}</span>/</div>
+        <div class="t4 pl-8">├── <span style="color:#34d399;">README.md</span><span class="t3 text-xs">       ← idea + scores</span></div>
+        <div class="t4 pl-8">└── sessions/</div>
+        <div class="t4 pl-12 text-xs">├── <span style="color:#818cf8;">{slug}-session-{n}-{date}.md</span></div>
+        <div class="t4 pl-12 text-xs">└── <span style="color:#34d399;">{slug}-brainstorm-{n}-{date}.md</span></div>
+        <div class="t4 pl-4 mt-2">├── .claude/skills/</div>
+        <div class="t4 pl-8">├── <span style="color:#818cf8;">agora-run-debate</span>/</div>
+        <div class="t4 pl-8">├── <span style="color:#818cf8;">agora-brainstorm</span>/</div>
+        <div class="t4 pl-8">├── <span style="color:#818cf8;">agora-lead-specialist</span>/</div>
+        <div class="t4 pl-8">├── specialist-<span style="color:#818cf8;">{name}</span>/ <span class="t3 text-xs">← debate</span></div>
+        <div class="t4 pl-12 text-xs t3">SKILL.md · MEMORY.md · CHANGELOG.md</div>
+        <div class="t4 pl-8">└── dreamer-<span style="color:#34d399;">{name}</span>/ <span class="t3 text-xs">← brainstorm</span></div>
+        <div class="t4 pl-12 text-xs t3">SKILL.md · MEMORY.md</div>
+        <div class="t4 pl-4 mt-2">└── analytics/</div>
+        <div class="t4 pl-8 text-xs">sessions.jsonl · specialists.jsonl · brainstorms.jsonl</div>
+      </div>
+      <div class="space-y-4">
+        <div class="card rounded-xl p-5"><div class="font-semibold t1 text-sm mb-2">ideas/{slug}/README.md</div><p class="text-xs t2">The living idea file. Contains the description, current readiness scores, open questions, constraints, notes, proposals from brainstorm sessions, and session history. This is what specialists read every session.</p></div>
+        <div class="card rounded-xl p-5"><div class="font-semibold t1 text-sm mb-2">sessions/{slug}-session-{n}-{date}.md</div><p class="text-xs t2">Full session transcript with every specialist's analysis per round, round-by-round readiness scores, meta-specialist synthesis, and next-session recommendations.</p></div>
+        <div class="card rounded-xl p-5"><div class="font-semibold t1 text-sm mb-2">.claude/skills/specialist-{name}/MEMORY.md</div><p class="text-xs t2">Persists across sessions — specialists accumulate observations, learned patterns, and idea-specific context over time. Automatically updated after every session.</p></div>
+        <div class="card rounded-xl p-5"><div class="font-semibold t1 text-sm mb-2">analytics/*.jsonl</div><p class="text-xs t2">One record per session/review in JSONL format. Feeds the analytics dashboard for tracking readiness trends, specialist performance, and session KPIs over time.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Extend -->
+<section id="extend" class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">Extensibility</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">Extend Agora in minutes.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">All logic lives in Markdown skill files. No compilation, no deployment. Add a specialist, add a workflow — available immediately.</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-bold t1 mb-4 text-lg">Add a new specialist</h3>
+        <div class="code-block rounded-xl p-5 text-xs leading-relaxed">
+          <div class="t3 mb-3"># 1. Create the skill file</div>
+          <div style="color:#34d399;">.claude/skills/specialist-{name}/SKILL.md</div>
+          <div class="mt-3 t4">---</div>
+          <div class="t4">name: specialist-{name}</div>
+          <div class="t4">description: {Role} specialist for Agora</div>
+          <div class="t4">user-invocable: false</div>
+          <div class="t4">context: fork</div>
+          <div class="t4">version: "1.0.0"</div>
+          <div class="t4">---</div>
+          <div class="mt-3 t3"># 2. Add selection rules to:</div>
+          <div style="color:#818cf8;">agora-lead-specialist/SKILL.md</div>
+          <div class="mt-3 t3"># 3. Or automate it:</div>
+          <div style="color:#c084fc;">/agora-build-specialist {slug}</div>
+        </div>
+      </div>
+      <div>
+        <h3 class="font-bold t1 mb-4 text-lg">Add a new workflow</h3>
+        <div class="code-block rounded-xl p-5 text-xs leading-relaxed">
+          <div class="t3 mb-3"># Create a skill with natural language triggers</div>
+          <div style="color:#34d399;">.claude/skills/{workflow-name}/SKILL.md</div>
+          <div class="mt-3 t4">---</div>
+          <div class="t4">name: my-workflow</div>
+          <div class="t4">description: Run this when user says...</div>
+          <div class="t4">user-invocable: true</div>
+          <div class="t4">---</div>
+          <div class="mt-3 t4"># Step-by-step instructions here</div>
+          <div class="mt-3 t3"># Not sure which architecture to use?</div>
+          <div style="color:#c084fc;">/knowledge-architect</div>
+          <div class="t3 mt-1"># Recommends Skills, Agents,</div>
+          <div class="t3"># and Anthropic SDK primitives</div>
+        </div>
+      </div>
+    </div>
+    <div class="highlight-box rounded-xl p-5 mt-6 text-sm">
+      <span class="font-semibold t1">All logic is in Markdown.</span>
+      <span class="t2"> Skills are plain text files with frontmatter. No build step, no deploy, no restart. Edit a SKILL.md and the change takes effect on the next message to Claude.</span>
+    </div>
+  </div>
+</section>
+
+<!-- Quick start -->
+<section id="quickstart" class="py-12 md:py-20 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="section-label mb-4">Get started</div>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold t1 mb-4">Up and running in 60 seconds.</h2>
+    <p class="t2 text-base md:text-lg mb-8 md:mb-12 max-w-2xl">Agora runs entirely inside Claude Code. No accounts, no servers, no API setup beyond what Claude Code already requires.</p>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="space-y-4">
+        <div class="flex gap-4">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style="background:linear-gradient(135deg,#6366f1,#818cf8);">1</div>
+          <div><div class="font-semibold t1 text-sm mb-2">Install Claude Code</div><div class="code-block rounded-lg p-3 text-xs" style="color:#34d399;">npm install -g @anthropic-ai/claude-code</div></div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style="background:linear-gradient(135deg,#6366f1,#818cf8);">2</div>
+          <div><div class="font-semibold t1 text-sm mb-2">Clone and open</div><div class="code-block rounded-lg p-3 text-xs" style="color:#34d399;">git clone &lt;agora-repo&gt; &amp;&amp; cd agora<br/>claude</div></div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style="background:linear-gradient(135deg,#6366f1,#818cf8);">3</div>
+          <div><div class="font-semibold t1 text-sm mb-2">Add your first idea</div><div class="code-block rounded-lg p-3 text-xs" style="color:#818cf8;">"Add an idea: [describe your concept]"</div></div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style="background:#34d399;color:#0a0a0f;">4</div>
+          <div><div class="font-semibold t1 text-sm mb-2">Brainstorm, then debate</div>
+          <div class="code-block rounded-lg p-3 text-xs space-y-1">
+            <div style="color:#34d399;">"Brainstorm on my [name] idea"</div>
+            <div style="color:#818cf8;">"Run a debate on my [name] idea"</div>
+          </div></div>
+        </div>
+      </div>
+      <div class="card rounded-xl p-6">
+        <div class="text-sm font-semibold t1 mb-4">Typical first session flow</div>
+        <div class="space-y-3 text-sm">
+          <div class="flex items-start gap-3"><div class="w-1.5 h-1.5 rounded-full shrink-0 mt-2" style="background:#818cf8;"></div><span class="t2">Add your idea — answer 9 questions (skip freely)</span></div>
+          <div class="flex items-start gap-3"><div class="w-1.5 h-1.5 rounded-full shrink-0 mt-2" style="background:#34d399;"></div><span class="t2">Brainstorm session → 5 dreamers expand possibilities, proposals sorted by horizon</span></div>
+          <div class="flex items-start gap-3"><div class="w-1.5 h-1.5 rounded-full shrink-0 mt-2" style="background:#818cf8;"></div><span class="t2">Debate session → specialists auto-selected, 2–3 rounds of structured argument</span></div>
+          <div class="flex items-start gap-3"><div class="w-1.5 h-1.5 rounded-full shrink-0 mt-2" style="background:#fbbf24;"></div><span class="t2">Read the session report — scores, synthesis, open questions, next steps</span></div>
+          <div class="flex items-start gap-3"><div class="w-1.5 h-1.5 rounded-full shrink-0 mt-2" style="background:#34d399;"></div><span class="t2">Repeat until 85% readiness → your PoC spec is ready to build</span></div>
+        </div>
+        <div class="mt-6 p-4 rounded-lg text-xs" style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.18);">
+          <div class="font-semibold mb-1" style="color:#34d399;">No setup required beyond Claude Code</div>
+          <div class="t2">All state is plain markdown files. Git-friendly, inspectable, and portable. Your ideas live with your code.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-10 md:py-16 px-6 section-divider">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex flex-col md:flex-row items-start justify-between gap-8">
+      <div class="max-w-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-8 h-8 rounded-md flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#38bdf8);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <span class="font-bold t1 text-lg">Agora</span>
+        </div>
+        <p class="text-sm t3 leading-relaxed">A multi-agent AI debate system for developing raw ideas into PoC-ready specifications. Built as a Claude Code skill system — no servers, no deployment, just plain text and intelligence.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-8 text-sm">
+        <div>
+          <div class="text-xs font-semibold t3 uppercase tracking-wider mb-3">Core skills</div>
+          <div class="space-y-2 t2">
+            <div class="font-mono text-xs">/agora-add-idea</div>
+            <div class="font-mono text-xs">/agora-brainstorm</div>
+            <div class="font-mono text-xs">/agora-run-debate</div>
+            <div class="font-mono text-xs">/agora-list-ideas</div>
+            <div class="font-mono text-xs">/agora-show-idea</div>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs font-semibold t3 uppercase tracking-wider mb-3">Improvement</div>
+          <div class="space-y-2 t2">
+            <div class="font-mono text-xs">/agora-review-specialists</div>
+            <div class="font-mono text-xs">/agora-list-proposals</div>
+            <div class="font-mono text-xs">/agora-apply-specialist-update</div>
+            <div class="font-mono text-xs">/agora-hire-specialists</div>
+            <div class="font-mono text-xs">/agora-build-specialist</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-12 pt-8 flex items-center justify-between text-xs t3" style="border-top:1px solid var(--bd);">
+      <span>Agora — Multi-Agent Debate System</span>
+      <span>Built with Claude Code</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const html = document.documentElement;
+
+  // restore preference
+  if (localStorage.getItem('agora-theme') === 'light') html.classList.add('light');
+
+  // theme toggle — handles both desktop and mobile buttons
+  document.querySelectorAll('.theme-btn[aria-label="Toggle theme"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const isLight = html.classList.toggle('light');
+      localStorage.setItem('agora-theme', isLight ? 'light' : 'dark');
+    });
+  });
+
+  // mobile hamburger
+  const menuBtn  = document.getElementById('mobile-menu-btn');
+  const menu     = document.getElementById('mobile-menu');
+  const iconHam  = document.getElementById('icon-hamburger');
+  const iconX    = document.getElementById('icon-close');
+
+  menuBtn.addEventListener('click', () => {
+    const open = menu.classList.toggle('hidden');
+    iconHam.classList.toggle('hidden', !open);
+    iconX.classList.toggle('hidden', open);
+    menuBtn.setAttribute('aria-expanded', String(!open));
+  });
+
+  // close menu on any link click
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menu.classList.add('hidden');
+    iconHam.classList.remove('hidden');
+    iconX.classList.add('hidden');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }));
+</script>
+</body>
+</html>

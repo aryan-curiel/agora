@@ -7,6 +7,7 @@ graph TD
         direction TB
         ADD["/agora-add-idea\nStructured intake: name + 9 clarifying questions\nCreates ideas/{slug}/README.md with initial scores"]
         CONSTR["/agora-add-constraint\nAdds hard constraint to idea\nEnforced in all debate sessions"]
+        BRAINSTORM["/agora-brainstorm\n5 dreamers × 3 rounds · skeptic grounding\nProposals by horizon — does not score readiness"]
         LIST["/agora-list-ideas\nReads ideas_index.md\nShows scores + status"]
         SHOW["/agora-show-idea\nDisplays idea detail\nReadiness breakdown"]
         RUN["/agora-run-debate\nCore workflow orchestrator\n2–3 rounds · 40k token budget"]
@@ -17,14 +18,17 @@ graph TD
 
     subgraph FS["File System"]
         direction TB
-        IDX["ideas_index.md\nMaster index + scores"]
-        IDEA["ideas/{slug}/README.md\nIdea file + readiness scores\n+ session history"]
-        SESSION["ideas/{slug}/sessions/\n{slug}-session-{n}-{date}.md\nFull transcript + report"]
+        IDX["ideas_index.md\nMaster index + scores + brainstorm count"]
+        IDEA["ideas/{slug}/README.md\nIdea file + readiness scores\n+ proposals + session history"]
+        SESSION["ideas/{slug}/sessions/\n{slug}-session-{n}-{date}.md\nFull debate transcript + report"]
+        BSESSION["ideas/{slug}/sessions/\n{slug}-brainstorm-{n}-{date}.md\nProposals by horizon + transcript"]
         SKILLS_DIR[".claude/skills/{name}/\nSKILL.md · MEMORY.md\nCHANGELOG.md · PROPOSAL-v*.md"]
+        ANALYTICS["analytics/\nsessions.jsonl · specialists.jsonl\nbrainstorms.jsonl"]
     end
 
     User -->|"add idea"| ADD
     User -->|"add constraint"| CONSTR
+    User -->|"brainstorm"| BRAINSTORM
     User -->|"list ideas"| LIST
     User -->|"show idea"| SHOW
     User -->|"run debate"| RUN
@@ -35,16 +39,25 @@ graph TD
     ADD -->|"creates"| IDEA
     ADD -->|"updates"| IDX
     CONSTR -->|"reads/updates"| IDEA
+    BRAINSTORM -->|"reads"| IDEA
+    BRAINSTORM -->|"creates"| BSESSION
+    BRAINSTORM -->|"merges proposals"| IDEA
+    BRAINSTORM -->|"updates"| IDX
+    BRAINSTORM -->|"appends"| ANALYTICS
     LIST -->|"reads"| IDX
     SHOW -->|"reads"| IDEA
     RUN -->|"reads/updates"| IDEA
     RUN -->|"creates"| SESSION
     RUN -->|"updates"| IDX
+    RUN -->|"appends"| ANALYTICS
     REVIEW -->|"reads"| SESSION
     REVIEW -->|"writes"| SKILLS_DIR
+
     APPLY -->|"patches"| SKILLS_DIR
 
     style CONSTR fill:#78350f,stroke:#f59e0b,stroke-width:2px,color:#f8fafc
+    style BRAINSTORM fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#f8fafc
     style USER_SKILLS fill:#1e3a5f,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
     style FS fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#f8fafc
     style User fill:#4c1d95,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc
+    style ANALYTICS fill:#162032,stroke:#475569,stroke-width:1px,color:#94a3b8

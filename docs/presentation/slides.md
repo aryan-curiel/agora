@@ -102,6 +102,31 @@ layout: center
 class: text-center
 ---
 
+# Two Modes
+
+<div class="grid grid-cols-2 gap-8 mt-8 text-left max-w-3xl mx-auto">
+
+<div class="border border-green-400 rounded-lg p-5">
+  <div class="text-lg font-bold text-green-400 mb-2">Brainstorm</div>
+  <code class="text-sm">"Brainstorm on my invoice idea"</code>
+  <div class="text-sm mt-3 text-gray-400">5 dreamers generate proposals across 3 rounds. Organized by horizon: Quick Wins · Growth Features · Moonshots. <strong class="text-gray-300">Expands possibility space — no readiness scoring.</strong></div>
+</div>
+
+<div class="border border-purple-400 rounded-lg p-5">
+  <div class="text-lg font-bold text-purple-400 mb-2">Debate</div>
+  <code class="text-sm">"Run a debate on my invoice idea"</code>
+  <div class="text-sm mt-3 text-gray-400">3–4 specialists argue across 2–3 rounds. Meta-specialist scores 10 dimensions after each round. <strong class="text-gray-300">Develops a direction — drives readiness scores.</strong></div>
+</div>
+
+</div>
+
+<div class="mt-8 text-sm text-gray-500">Brainstorm first to explore. Debate to build.</div>
+
+---
+layout: center
+class: text-center
+---
+
 # Three Steps
 
 <div class="grid grid-cols-3 gap-8 mt-8 text-left">
@@ -216,6 +241,92 @@ sequenceDiagram
 <!--
 The key design: each specialist sees what others said earlier in the round, so they can challenge and build on each other — not just talk past each other.
 -->
+
+---
+layout: two-cols
+---
+
+# Brainstorm Session Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant BS as agora-brainstorm
+    participant DR as Dreamers (×5)
+    participant SK as skeptic (grounding)
+
+    User->>BS: /agora-brainstorm [slug]
+    BS->>BS: Read idea + count prior sessions
+
+    loop Rounds 1–3
+        BS->>DR: idea + history + horizon assignment
+        DR-->>BS: proposals tagged quick-win/growth/moonshot
+        alt Round 2 or 3
+            BS->>SK: all proposals so far
+            SK-->>BS: 2–3 flags + 2 sharp questions
+        end
+    end
+
+    BS->>BS: Write report + merge proposals into idea
+    BS->>DR: memory-update mode
+```
+
+<!--
+Key difference from debate: dreamers generate divergently. The skeptic grounds, not dominates.
+Round 2 forces cross-pollination — each dreamer must build on someone else's proposal.
+-->
+
+---
+layout: two-cols
+---
+
+# The Dreamer Roster
+
+<div class="text-sm">
+
+| Dreamer | Lens | Focus |
+|---|---|---|
+| **Futurist** | 10-year horizon | Emerging tech, paradigm shifts, moonshots |
+| **Builder** | Execution-first | What can ship in a sprint, technical feasibility |
+| **User Advocate** | Human-centered | Jobs-to-be-done, friction, delight |
+| **Connector** | Cross-domain | Analogies from other industries, unexpected pairings |
+| **Narrativist** | Story-first | Positioning, naming, why it sticks |
+
+</div>
+
+::right::
+
+<div class="ml-4 mt-2 text-sm">
+
+**All 5 dreamers run every session** — no roster selection.
+
+Proposals are tagged by time horizon:
+
+<v-click>
+
+```
+Quick Wins (0–3 months)
+  — shippable in a sprint, low risk
+
+Growth Features (3–12 months)
+  — meaningful differentiation
+
+Moonshots (1+ year)
+  — high risk, high reward, track for later
+```
+
+</v-click>
+
+<v-click>
+
+Round 2: each dreamer **must build on** another's proposal.  
+Round 3: dreamers **fill the thinnest horizon**.
+
+Skeptic flags broken proposals after rounds 2 and 3 — no veto power, just signal.
+
+</v-click>
+
+</div>
 
 ---
 layout: two-cols
@@ -369,6 +480,7 @@ layout: two-cols
 ```bash
 "Add an idea: [describe it]"
 "Add a constraint to my [name] idea"
+"Brainstorm on my [name] idea"
 "Run a debate on my [name] idea"
 "Show me my ideas"
 "Show me the [name] idea"
@@ -379,6 +491,7 @@ layout: two-cols
 ```bash
 /agora-add-idea [name]
 /agora-add-constraint [idea-id]
+/agora-brainstorm [idea-id]
 /agora-run-debate [idea-id]
 /agora-list-ideas
 /agora-show-idea [idea-id]
@@ -392,7 +505,7 @@ layout: two-cols
 **Improvement pipeline:**
 
 ```bash
-# After a session
+# After any session
 /agora-review-specialists [slug]
 /agora-list-proposals
 /agora-apply-specialist-update [name]
@@ -649,17 +762,22 @@ layout: two-cols
 agora/
 ├── ideas_index.md        ← master index + scores
 ├── ideas/{slug}/
-│   ├── README.md         ← idea + readiness scores
+│   ├── README.md         ← idea + readiness scores + proposals
 │   └── sessions/
-│       └── {slug}-session-{n}-{date}.md
+│       ├── {slug}-session-{n}-{date}.md      ← debate report
+│       └── {slug}-brainstorm-{n}-{date}.md   ← brainstorm report
 ├── .claude/skills/
-│   ├── agora-run-debate/ ← orchestrator
+│   ├── agora-run-debate/    ← debate orchestrator
+│   ├── agora-brainstorm/    ← brainstorm orchestrator
 │   ├── agora-lead-specialist/
-│   └── specialist-{name}/
-│       ├── SKILL.md      ← role + instructions
-│       ├── MEMORY.md     ← persistent memory
-│       └── CHANGELOG.md
-└── analytics/            ← session KPIs + trends
+│   ├── specialist-{name}/   ← debate specialists
+│   │   ├── SKILL.md · MEMORY.md · CHANGELOG.md
+│   └── dreamer-{name}/      ← brainstorm dreamers
+│       └── SKILL.md · MEMORY.md
+└── analytics/
+    ├── sessions.jsonl        ← debate KPIs
+    ├── specialists.jsonl     ← specialist performance
+    └── brainstorms.jsonl     ← brainstorm stats
 ```
 
 </div>
@@ -719,14 +837,16 @@ layout: end
 
 # That's Agora
 
-**Multi-agent debate → structured specs → ideas you can actually build**
+**Multi-agent brainstorming + debate → structured specs → ideas you can actually build**
 
 <div class="mt-8 text-sm text-gray-400">
 
 - Natural language interface via Claude Code  
-- 8 specialists, self-selected per idea  
+- 5 dreamers for creative expansion (brainstorm mode)  
+- 8 specialists, self-selected per idea (debate mode)  
 - 10-dimension readiness scoring  
-- Persistent specialist memories  
+- Proposals organized by time horizon  
+- Persistent memories for both dreamers and specialists  
 - Continuous improvement loop  
 
 </div>
@@ -735,8 +855,8 @@ layout: end
 
 ```bash
 cd agora && claude
-# "Add an idea: ..."
-# "Run a debate on my ... idea"
+# "Brainstorm on my ... idea"      ← explore possibility space
+# "Run a debate on my ... idea"    ← develop and score
 ```
 
 </div>

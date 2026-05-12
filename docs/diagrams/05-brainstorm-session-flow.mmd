@@ -1,0 +1,51 @@
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#1e293b", "primaryTextColor": "#f8fafc", "primaryBorderColor": "#475569", "lineColor": "#94a3b8", "secondaryColor": "#0f172a", "tertiaryColor": "#162032", "background": "#0f172a", "mainBkg": "#1e293b", "nodeBorder": "#475569", "clusterBkg": "#162032", "titleColor": "#f8fafc", "edgeLabelBackground": "#1e293b", "fontFamily": "monospace"}}}%%
+
+sequenceDiagram
+    actor User
+    participant BS as agora-brainstorm
+    participant DR as Dreamers<br/>(5 agents)
+    participant SK as specialist-skeptic<br/>(grounding mode)
+    participant WR as agora-write-brainstorm-report
+    participant FS as File System
+
+    User->>BS: /agora-brainstorm [slug]
+    BS->>FS: Read ideas/{slug}/README.md
+    FS-->>BS: idea context + existing proposals
+    BS->>FS: Count *-brainstorm-* in sessions/
+    FS-->>BS: session number
+
+    Note over BS: Print session header<br/>Dreamers · Rounds · Horizon focus
+
+    loop For each round (1 → max_brainstorm_rounds, default 3)
+        BS->>BS: Print round header + focus directive<br/>(Round 1: free · Round 2: cross-pollinate · Round 3: sharpen)
+
+        loop For each dreamer (futurist, builder, user-advocate, connector, narrativist)
+            BS->>FS: Read dreamer MEMORY.md (if exists)
+            FS-->>BS: dreamer memory (or empty)
+            BS->>DR: /dreamer-{name} with idea + history + memory + horizon assignment
+            DR-->>BS: proposals with horizon tags (quick-win / growth-feature / moonshot)
+            BS->>BS: Collect proposals into ALL_PROPOSALS
+        end
+
+        alt Round 2 or 3
+            BS->>SK: /specialist-skeptic MODE:brainstorm-grounding<br/>with ALL PROPOSALS SO FAR
+            SK-->>BS: 2–3 flagged proposals + 2 sharp questions
+            BS->>BS: Record SKEPTIC_FLAGS and SKEPTIC_QUESTIONS
+        end
+    end
+
+    BS->>WR: /agora-write-brainstorm-report (slug, session n, proposals, flags, transcript)
+    WR->>FS: Write ideas/{slug}/sessions/{slug}-brainstorm-{n}-{date}.md
+    WR-->>BS: filename
+
+    BS->>FS: Update ideas/{slug}/README.md (merge proposals by horizon)
+    BS->>FS: Update ideas_index.md (increment Brainstorms count)
+
+    loop For each dreamer
+        BS->>DR: /dreamer-{name} MODE:memory-update (contributions + synthesis)
+        DR-->>BS: Updated MEMORY.md content
+        BS->>FS: Write .claude/skills/dreamer-{name}/MEMORY.md
+    end
+
+    BS->>FS: Append to analytics/brainstorms.jsonl
+    BS-->>User: Brainstorm complete — proposals summary + strongest picks per horizon

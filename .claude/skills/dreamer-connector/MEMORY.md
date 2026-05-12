@@ -2,32 +2,41 @@
 name: dreamer-connector memory
 description: Accumulated session memory for the Connector dreamer agent
 type: session-memory
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 
-## Session History
+# Memory — The Connector
 
-### Agora Brainstorm Session 1 (2026-05-11)
+*Last updated: 2026-05-12*
 
-**Idea:** Agora — multi-agent debate system for self-trust-depleted founders.
+## Durable Patterns
 
-**My proposals:**
-- Debate Replay as SportsCenter Highlight (quick-win): 60-second card stack of 3 sharpest exchanges
-- Specialist Confidence Ratings Like Rotten Tomatoes (growth): dual score — readiness + consensus
-- The Franchise Playbook for Specialist Stacks (growth): curated domain bundle templates
-- Agora as Pre-Mortem Infrastructure Like Aviation Black Boxes (moonshot): patterns feed as calibrated priors into specialists
-- Specialist Stack as Fantasy Draft (growth): visible specialist stats, composable roster
-- Readiness Score as Credit Score with Dispute History (growth): *Skeptic flagged x2: no external arbiter or enforcement layer*
-- Domain Bundles as Michelin Guide Tiers (growth): certified vertical stacks with outcome-based reputation scores
-- Session Handoff as Annotated Due Diligence Room (growth): timestamped annotations on specific specialist arguments
-- Adversarial Peer Review as Publishing Infrastructure (moonshot): debate log as citable primary document
-- The Grand Jury Model for Founder Conviction (moonshot): threshold is survivability, not excellence; verdict with evidence
+### Analogies that transfer cleanly
+- **SportsCenter highlights**: reframes session output as "evidence of rigorous process" — a shareable artifact, not a report
+- **Rotten Tomatoes dual score**: readiness + consensus gives a second interpretability axis unique to multi-agent debate
+- **Michelin Guide tiers**: reputation earned from outcome prediction, not self-certification — avoids the gaming problem
+- **Grand jury model**: survivability threshold (not excellence) is the right conviction framing; verdict with evidence
+- **Stripe CLI annotated first response**: making value tangible in the API response itself solves the shareable artifact problem for no-auth entry points
+- **Replit "Run" button**: one-click demo session with pre-loaded idea before any payment prompt — reduces friction to first value
+- **Loom "Watch before sign-up"**: replay fully viewable; inline prompt appears at 60% mark — but conversion drop at gate vs. organic end-of-replay conversion is unmodeled
+- **Docusaurus embedded sandbox**: pre-populated debate request inline in API docs, output renders inline — clean developer onboarding with no product page required
+- **Duolingo streak logic**: momentum score + targeted micro-intervention on weakest readiness dimension
 
-**Cross-domain analogies that worked:**
-- SportsCenter highlights: reframes "report" as "evidence of rigorous process"
-- Rotten Tomatoes dual score: second axis of interpretability unique to multi-agent debate
-- Michelin Guide tiers: reputation from outcome prediction, not self-certification
-- Grand jury model: prosecution threshold vs. acquittal binary — survivability is the right framing
+### Analogy failure modes (recurring)
+- **Enforcement-dependent mechanics**: credit score requires institutional arbiters Agora doesn't have; Angie's List badges are gameable without human verification — don't port mechanics that need external enforcement layers
+- **Premature pattern libraries**: Chess.com opening explorer requires critical dataset mass before providing signal; shipping before that threshold is actively harmful — noise dressed as signal
+- **Conversion modeling gaps**: Loom-style gate is unvalidated; don't ship conversion mechanics without modeling drop-off vs. organic completion
 
-**Analogy failure mode:**
-- Credit score requires institutional enforcement; Agora has none — don't port mechanics that need external arbiters
+### Permissioning and tiering
+- **Bloomberg Terminal model**: tier by session capabilities (solo/team/enterprise) without building separate products — the same interface, different unlocks
+
+### Social and sharing
+- **Figma shareable links**: session outputs as publicly shareable read-only links — clean, familiar mechanic; Figma plugin API doesn't support full comment-thread-as-debate-artifact fidelity at this time
+
+## Session Log
+
+### Session 1 — Agora Brainstorm (2026-05-11)
+Idea: Agora as multi-agent debate system for self-trust-depleted founders. 10 proposals across quick-win / growth / moonshot horizons. Key analogies: SportsCenter, Rotten Tomatoes, Michelin, Grand Jury. Primary failure mode surfaced: enforcement-dependent mechanics.
+
+### Session 2 — Agora SaaS Brainstorm (2026-05-12)
+61-proposal session. 12 of my proposals across 3 rounds. Key finding: Stripe CLI annotated first response and Docusaurus embedded sandbox are the strongest no-friction entry points for developer onboarding. Angie's List badges confirmed as enforcement-dependent failure. Chess.com pattern explorer confirmed as premature-data failure. Bloomberg tiering model introduced as clean SaaS permissioning pattern.

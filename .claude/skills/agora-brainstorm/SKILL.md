@@ -198,6 +198,43 @@ For each round (1 through max_brainstorm_rounds):
     }
     ```
 
+14b. For each dreamer, append one JSON line to `analytics/dreamers.jsonl` (create if it does not exist).
+    Evaluate each dreamer's contributions across all rounds using these criteria:
+
+    **Scores (1–5):**
+    - `originality`: Did they propose directions not already obvious from the idea or prior rounds?
+    - `specificity`: Were they concrete — naming mechanisms, timeframes, technologies, or behaviors (not vague generalities)?
+    - `cross_pollination`: Did they explicitly build on or fork from another dreamer's proposals in Round 2+?
+    - `horizon_adherence`: Did they follow their horizon assignment? (round 1 is open; rounds 2–3 have directed assignments)
+
+    **Counts:**
+    - `proposals_count`: Total proposals this dreamer generated across all rounds
+    - `flagged_count`: How many of their proposals were named in a Skeptic flag
+
+    **Overall:** Average of the four numeric scores, rounded to 2 decimal places.
+
+    JSON structure per dreamer:
+    ```json
+    {
+      "session_id": "{slug}-brainstorm-{n}-{YYYYMMDD}",
+      "date": "{YYYY-MM-DD}",
+      "dreamer": "dreamer-{name}",
+      "version": "{version from SKILL.md frontmatter}",
+      "scores": {
+        "originality": {1–5},
+        "specificity": {1–5},
+        "cross_pollination": {1–5},
+        "horizon_adherence": {1–5},
+        "word_count_compliance": {true|false}
+      },
+      "proposals_count": {integer},
+      "flagged_count": {integer},
+      "overall": {average of four numeric scores, 2 decimal places},
+      "proposal_written": false,
+      "proposal_file": null
+    }
+    ```
+
 ### Print final summary
 
 15. Print:

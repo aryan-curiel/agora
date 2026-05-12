@@ -28,6 +28,7 @@ claude
 |---|---|---|
 | Add a new idea | `/agora-add-idea [name]` | "Add an idea: [describe it]" |
 | Add a constraint to an idea | `/agora-add-constraint [idea-id]` | "Add a constraint to my [name] idea" |
+| Brainstorm on an idea | `/agora-brainstorm [idea-id]` | "Brainstorm on my [name] idea" |
 | Run a debate session | `/agora-run-debate [idea-id]` | "Run a debate on my [name] idea" |
 | See all ideas | `/agora-list-ideas` | "Show me my ideas" |
 | Inspect an idea | `/agora-show-idea [idea-id]` | "Show me the [name] idea" |
@@ -61,7 +62,21 @@ Every idea is scored across 10 dimensions, each 0–10. The overall readiness pe
 
 When you run `/agora-add-idea`, the skill asks for a brief description and then sends a single follow-up with 9 targeted questions — one per readiness dimension (problem, users, features, stack, GTM, risks, PoC scope, metrics, monetization, budget). Answer what you know; skip the rest. The README is written with real initial scores for answered dimensions, so debate sessions start with context rather than blanks.
 
-## How sessions work
+## How brainstorming works
+
+Brainstorm sessions expand an idea's possibility space — generating proposals across three time horizons without affecting readiness scores.
+
+1. **Dreamer roster** — 5 dreamers with complementary generative lenses: Futurist, Builder, User Advocate, Connector, and Narrativist.
+2. **Three rounds** — Round 1 is free divergence, Round 2 requires cross-pollinating on each other's proposals, Round 3 fills thin horizons.
+3. **Skeptic grounding** — after rounds 2 and 3, the skeptic flags structurally broken proposals and asks two sharp questions.
+4. **Proposals organized by horizon** — Quick Wins (0–3 months), Growth Features (3–12 months), Moonshots (1+ year).
+5. **Report and proposals** written to `ideas/{slug}/sessions/` and merged into the idea file's `## Proposals` section.
+
+Brainstorming is the right starting point when an idea needs creative expansion; debates are for structural development and readiness scoring.
+
+![Brainstorm Session Flow](docs/diagrams/05-brainstorm-session-flow.png)
+
+## How debate sessions work
 
 1. **Lead specialist** reads the idea and selects 3–4 specialists best suited to address the current readiness gaps.
 2. **Debate rounds** (2 for ideas with readiness ≥ 30%, 3 for new ideas) — each specialist analyzes the idea from their perspective, with each specialist seeing what others said earlier in the round.
