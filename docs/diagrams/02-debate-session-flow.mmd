@@ -21,11 +21,12 @@ sequenceDiagram
         RD->>RD: Print round header
 
         loop For each specialist in roster
-            RD->>FS: Read specialist MEMORY.md (if exists)
-            FS-->>RD: specialist memory (or empty)
             Note over RD,SA: Round 1: full idea description<br/>Round 2+: idea name + previous round synthesis only
-            RD->>SA: /specialist-{name} with context + prior messages + memory + [CONSTRAINTS]
+            RD->>SA: /specialist-{name} with context + prior messages + [CONSTRAINTS]
+            SA->>FS: Read own MEMORY.md (self-managed)
+            FS-->>SA: accumulated patterns (or empty)
             SA-->>RD: specialist analysis (250–400 words, respects constraints)
+            SA->>FS: Update MEMORY.md if new patterns observed
             RD->>RD: Append to round messages list
         end
 
@@ -48,12 +49,6 @@ sequenceDiagram
 
     RD->>FS: Update Session History in README.md
     RD->>FS: Update ideas_index.md
-
-    loop For each specialist in roster
-        RD->>SA: /specialist-{name} MODE:memory-update (contributions + synthesis)
-        SA-->>RD: Updated MEMORY.md content
-        RD->>FS: Write .claude/skills/{specialist}/MEMORY.md
-    end
 
     RD-->>User: Session complete summary
     Note over RD,User: Post-session options (opt-in):<br/>/agora-review-specialists {slug}<br/>/agora-hire-specialists {slug}

@@ -81,13 +81,15 @@ ideas/
     sessions/
       agora-session-1-20260508.md
 
-.claude/skills/
-  agora-add-idea/      ← structured intake
-  agora-add-constraint/
+.claude/skills/        ← workflow skills
+  agora-add-idea/
   agora-run-debate/    ← orchestrator
   agora-lead-specialist/
-  specialist-skeptic/
-  specialist-tech-lead/
+  ...
+
+.claude/agents/        ← specialists & dreamers
+  specialist-skeptic.md
+  specialist-tech-lead.md
   ...
 ```
 
@@ -229,14 +231,14 @@ sequenceDiagram
 
     loop Each round (2–3)
         Note over RD,SA: Round 1: full description · Round 2+: synthesis only
-        RD->>SA: context + prior messages + memory
+        RD->>SA: context + prior messages + [CONSTRAINTS]
         SA-->>RD: 250–400 word analysis each
+        Note over SA: reads + updates own MEMORY.md
         RD->>SR: Score 10 dimensions
         SR-->>RD: Scores + synthesis
     end
 
     RD->>RD: Write session report
-    RD->>SA: Update specialist memories
     Note over RD,User: Opt-in: /agora-review-specialists · /agora-hire-specialists
 ```
 
@@ -270,7 +272,7 @@ sequenceDiagram
     end
 
     BS->>BS: Write report + merge proposals into idea
-    BS->>DR: memory-update mode
+    Note over DR: each dreamer reads + updates own MEMORY.md
 ```
 
 <!--
@@ -535,16 +537,15 @@ layout: two-cols
 
 ### Add a new specialist
 
-Create `.claude/skills/specialist-{name}/SKILL.md`:
+Create `.claude/agents/specialist-{name}.md`:
 
 ```yaml
 ---
 name: specialist-{name}
 description: {Role} specialist for Agora.
-user-invocable: false
-context: fork
-model: sonnet
-author: {your name}
+tools: [Read, Write, Edit]
+memory: project
+model: claude-sonnet-4-6
 version: 1.0.0
 ---
 ```
@@ -667,7 +668,7 @@ status: pending
 
 Contains:
 - **Observed issues** with evidence (round + quote)
-- **Proposed SKILL.md changes** (current → new text)
+- **Proposed agent definition changes** (current → new text)
 - **Breaking change analysis** and affected specialists
 
 </div>
@@ -680,8 +681,8 @@ Contains:
 
 **Applying a proposal** (`/agora-apply-specialist-update`):
 
-1. Validates skill version matches the proposal
-2. Applies each text change to SKILL.md
+1. Validates agent version matches the proposal
+2. Applies each text change to the agent definition
 3. Bumps version in frontmatter
 4. If breaking → cascades a patch to affected specialists
 5. Marks proposal `status: applied`
@@ -736,7 +737,7 @@ If either fails, no job-post is written.
 1. Runs 4 targeted web searches on the domain
 2. Fetches 4–6 credible sources
 3. Synthesizes frameworks, failure modes, benchmarks
-4. Writes the SKILL.md with research-grounded instructions
+4. Writes the agent definition in `.claude/agents/` with research-grounded instructions
 5. Optionally writes reference files for complex domains
 6. Registers the specialist in the lead-specialist roster
 7. Marks the job-post as `built`
@@ -757,13 +758,13 @@ layout: two-cols
 
 # Cost Optimization
 
-Each skill declares an **intended model tier** via `model:` in frontmatter.
+Workflow skills declare an **intended model tier** via `model:` in frontmatter. Specialist and dreamer agents (`.claude/agents/`) run as subagents invoked by orchestrators.
 
 > ⚠ Claude Code does not currently support per-skill model routing — the field is representational. A routing mechanism is being researched.
 
 <div class="text-sm mt-3">
 
-| Tier | Intended model | Skills |
+| Tier | Intended model | Components |
 |---|---|---|
 | Helpers | **Haiku** | lead-specialist · score-round · write-report |
 | Agents | **Sonnet** | all 8 specialists · all 5 dreamers |
@@ -812,11 +813,12 @@ agora/
 ├── .claude/skills/
 │   ├── agora-run-debate/    ← debate orchestrator
 │   ├── agora-brainstorm/    ← brainstorm orchestrator
-│   ├── agora-lead-specialist/
-│   ├── specialist-{name}/   ← debate specialists
-│   │   ├── SKILL.md · MEMORY.md · CHANGELOG.md
-│   └── dreamer-{name}/      ← brainstorm dreamers
-│       └── SKILL.md · MEMORY.md
+│   └── agora-lead-specialist/
+├── .claude/agents/
+│   ├── specialist-{name}.md ← debate specialists
+│   │   (+ {name}/MEMORY.md · CHANGELOG.md)
+│   └── dreamer-{name}.md    ← brainstorm dreamers
+│       (+ {name}/MEMORY.md)
 └── analytics/
     ├── sessions.jsonl        ← debate KPIs
     ├── specialists.jsonl     ← specialist performance
@@ -839,7 +841,7 @@ Each idea file tracks its own readiness scores, session history, and open questi
 
 <v-click>
 
-**Specialist skill files** contain:
+**Specialist agent files** contain:
 - Their role definition and debate instructions
 - A memory file updated after every session
 - A changelog of improvements applied

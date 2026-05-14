@@ -4,14 +4,12 @@ graph LR
     subgraph SESSION["Debate Session"]
         direction TB
         RD["agora-run-debate"]
-        AGENTS["Specialist Agents"]
-        MEM_R["Read MEMORY.md\n(specialist's prior patterns)"]
-        MEM_W["Write MEMORY.md\n(updated after session)"]
-        RD -->|"1. loads memory before\neach agent turn"| MEM_R
-        MEM_R --> AGENTS
+        AGENTS["Specialist Agents\n(tools: Read · Write · Edit)"]
+        MEM["MEMORY.md\n(per-agent, self-managed)"]
+        RD -->|"invokes each specialist\nin turn"| AGENTS
+        AGENTS -->|"reads at turn start"| MEM
         AGENTS -->|"contributes analysis"| RD
-        RD -->|"15. memory-update mode\nafter session ends"| AGENTS
-        AGENTS --> MEM_W
+        AGENTS -->|"updates at turn end\nif new patterns observed"| MEM
     end
 
     subgraph REVIEW_LOOP["Quality Improvement Loop"]
@@ -29,10 +27,10 @@ graph LR
     subgraph SKILL_FILE["Skill Definition  (.claude/skills/{specialist}/SKILL.md)"]
         direction TB
         FRONTMATTER["Frontmatter\nname · version · context: fork\nmodel: sonnet · author: Aryan Curiel\nuser-invocable: false"]
-        BODY["Body\nRole definition\nDebate instructions\nMemory update mode"]
+        BODY["Body\nRole definition\nDebate instructions\nSelf-managed memory"]
     end
 
-    MEM_W -->|"accumulates across\nmultiple sessions"| MEM_R
+    MEM -->|"accumulates across\nmultiple sessions"| MEM
     SESSION -->|"opt-in — user runs\nwhen needed"| REVIEW_LOOP
     APPLY -->|"patches body or instructions"| SKILL_FILE
     SKILL_FILE -->|"governs specialist behavior\neach session"| AGENTS

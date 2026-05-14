@@ -20,10 +20,11 @@ sequenceDiagram
         BS->>BS: Print round header + focus directive<br/>(Round 1: free · Round 2: cross-pollinate · Round 3: sharpen)
 
         loop For each dreamer (futurist, builder, user-advocate, connector, narrativist)
-            BS->>FS: Read dreamer MEMORY.md (if exists)
-            FS-->>BS: dreamer memory (or empty)
-            BS->>DR: /dreamer-{name} with idea + history + memory + horizon assignment
+            BS->>DR: /dreamer-{name} with idea + history + horizon assignment
+            DR->>FS: Read own MEMORY.md (self-managed)
+            FS-->>DR: accumulated patterns (or empty)
             DR-->>BS: proposals with horizon tags (quick-win / growth-feature / moonshot)
+            DR->>FS: Update MEMORY.md if new patterns observed
             BS->>BS: Collect proposals into ALL_PROPOSALS
         end
 
@@ -40,12 +41,6 @@ sequenceDiagram
 
     BS->>FS: Update ideas/{slug}/README.md (merge proposals by horizon)
     BS->>FS: Update ideas_index.md (increment Brainstorms count)
-
-    loop For each dreamer
-        BS->>DR: /dreamer-{name} MODE:memory-update (contributions + synthesis)
-        DR-->>BS: Updated MEMORY.md content
-        BS->>FS: Write .claude/skills/dreamer-{name}/MEMORY.md
-    end
 
     BS->>FS: Append to analytics/brainstorms.jsonl
     BS-->>User: Brainstorm complete — proposals summary + strongest picks per horizon

@@ -230,7 +230,7 @@
   <div class="max-w-4xl mx-auto text-center relative">
     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm mb-6 md:mb-8 font-mono surface-bg" style="border:1px solid var(--bd);color:#818cf8;">
       <span class="w-2 h-2 rounded-full animate-pulse-slow" style="background:#818cf8;"></span>
-      Claude Code Skill System
+      Claude Code · Skills & Agents
     </div>
     <h1 class="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-5 md:mb-6 leading-none">
       <span class="t1">Ideas deserve</span><br/>
@@ -653,7 +653,7 @@
             <div class="card rounded-lg p-3"><div class="font-semibold mb-1" style="color:#c084fc;">Filter 1 — Session impact</div><div class="t2">Would this specialist materially change the next session's outcome?</div></div>
             <div class="card rounded-lg p-3"><div class="font-semibold mb-1" style="color:#c084fc;">Filter 2 — Reusability</div><div class="t2">Would &gt;50% of future ideas benefit from this specialist?</div></div>
           </div>
-          <p class="text-xs t3 mt-3">If approved → <code style="color:#818cf8;">/agora-build-specialist</code> runs 4 web searches, fetches 4–6 credible sources, synthesizes domain knowledge, and writes a research-grounded SKILL.md. Available for the very next session.</p>
+          <p class="text-xs t3 mt-3">If approved → <code style="color:#818cf8;">/agora-build-specialist</code> runs 4 web searches, fetches 4–6 credible sources, synthesizes domain knowledge, and writes a research-grounded agent definition in <code style="color:#818cf8;">.claude/agents/</code>. Available for the very next session.</p>
         </div>
       </div>
     </div>
@@ -740,21 +740,22 @@
         <div class="t4 pl-8">└── sessions/</div>
         <div class="t4 pl-12 text-xs">├── <span style="color:#818cf8;">{slug}-session-{n}-{date}.md</span></div>
         <div class="t4 pl-12 text-xs">└── <span style="color:#34d399;">{slug}-brainstorm-{n}-{date}.md</span></div>
-        <div class="t4 pl-4 mt-2">├── .claude/skills/</div>
+        <div class="t4 pl-4 mt-2">├── .claude/skills/ <span class="t3 text-xs">← workflow skills</span></div>
         <div class="t4 pl-8">├── <span style="color:#818cf8;">agora-run-debate</span>/</div>
         <div class="t4 pl-8">├── <span style="color:#818cf8;">agora-brainstorm</span>/</div>
-        <div class="t4 pl-8">├── <span style="color:#818cf8;">agora-lead-specialist</span>/</div>
-        <div class="t4 pl-8">├── specialist-<span style="color:#818cf8;">{name}</span>/ <span class="t3 text-xs">← debate</span></div>
-        <div class="t4 pl-12 text-xs t3">SKILL.md · MEMORY.md · CHANGELOG.md</div>
-        <div class="t4 pl-8">└── dreamer-<span style="color:#34d399;">{name}</span>/ <span class="t3 text-xs">← brainstorm</span></div>
-        <div class="t4 pl-12 text-xs t3">SKILL.md · MEMORY.md</div>
+        <div class="t4 pl-8">└── <span style="color:#818cf8;">agora-lead-specialist</span>/</div>
+        <div class="t4 pl-4 mt-1">├── .claude/agents/ <span class="t3 text-xs">← specialists & dreamers</span></div>
+        <div class="t4 pl-8">├── specialist-<span style="color:#818cf8;">{name}</span>.md <span class="t3 text-xs">← debate</span></div>
+        <div class="t4 pl-12 text-xs t3">+ {name}/MEMORY.md · CHANGELOG.md</div>
+        <div class="t4 pl-8">└── dreamer-<span style="color:#34d399;">{name}</span>.md <span class="t3 text-xs">← brainstorm</span></div>
+        <div class="t4 pl-12 text-xs t3">+ {name}/MEMORY.md</div>
         <div class="t4 pl-4 mt-2">└── analytics/</div>
         <div class="t4 pl-8 text-xs">sessions.jsonl · specialists.jsonl · brainstorms.jsonl</div>
       </div>
       <div class="space-y-4">
         <div class="card rounded-xl p-5"><div class="font-semibold t1 text-sm mb-2">ideas/{slug}/README.md</div><p class="text-xs t2">The living idea file. Contains the description, current readiness scores, open questions, constraints, notes, proposals from brainstorm sessions, and session history. This is what specialists read every session.</p></div>
         <div class="card rounded-xl p-5"><div class="font-semibold t1 text-sm mb-2">sessions/{slug}-session-{n}-{date}.md</div><p class="text-xs t2">Full session transcript with every specialist's analysis per round, round-by-round readiness scores, meta-specialist synthesis, and next-session recommendations.</p></div>
-        <div class="card rounded-xl p-5"><div class="font-semibold t1 text-sm mb-2">.claude/skills/specialist-{name}/MEMORY.md</div><p class="text-xs t2">Persists across sessions — specialists accumulate observations, learned patterns, and idea-specific context over time. Automatically updated after every session.</p></div>
+        <div class="card rounded-xl p-5"><div class="font-semibold t1 text-sm mb-2">.claude/agents/specialist-{name}/MEMORY.md</div><p class="text-xs t2">Persists across sessions — specialists accumulate observations and learned patterns over time. Each agent reads its own memory at the start of every turn and writes updates autonomously after contributing.</p></div>
         <div class="card rounded-xl p-5"><div class="font-semibold t1 text-sm mb-2">analytics/*.jsonl</div><p class="text-xs t2">One record per session/review in JSONL format. Feeds the analytics dashboard for tracking readiness trends, specialist performance, and session KPIs over time.</p></div>
       </div>
     </div>
@@ -771,13 +772,14 @@
       <div>
         <h3 class="font-bold t1 mb-4 text-lg">Add a new specialist</h3>
         <div class="code-block rounded-xl p-5 text-xs leading-relaxed">
-          <div class="t3 mb-3"># 1. Create the skill file</div>
-          <div style="color:#34d399;">.claude/skills/specialist-{name}/SKILL.md</div>
+          <div class="t3 mb-3"># 1. Create the agent file</div>
+          <div style="color:#34d399;">.claude/agents/specialist-{name}.md</div>
           <div class="mt-3 t4">---</div>
           <div class="t4">name: specialist-{name}</div>
           <div class="t4">description: {Role} specialist for Agora</div>
-          <div class="t4">user-invocable: false</div>
-          <div class="t4">context: fork</div>
+          <div class="t4">tools: [Read, Write, Edit]</div>
+          <div class="t4">memory: project</div>
+          <div class="t4">model: claude-sonnet-4-6</div>
           <div class="t4">version: "1.0.0"</div>
           <div class="t4">---</div>
           <div class="mt-3 t3"># 2. Add selection rules to:</div>
@@ -869,7 +871,7 @@
           </div>
           <span class="font-bold t1 text-lg">Agora</span>
         </div>
-        <p class="text-sm t3 leading-relaxed">A multi-agent AI debate system for developing raw ideas into PoC-ready specifications. Built as a Claude Code skill system — no servers, no deployment, just plain text and intelligence.</p>
+        <p class="text-sm t3 leading-relaxed">A multi-agent AI debate system for developing raw ideas into PoC-ready specifications. Built as a Claude Code skill + agent system — no servers, no deployment, just plain text and intelligence.</p>
       </div>
       <div class="grid grid-cols-2 gap-8 text-sm">
         <div>
