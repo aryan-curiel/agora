@@ -3,6 +3,7 @@ name: dreamer-connector
 description: Connector dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
 tools: []
 memory: project
+model: claude-sonnet-4-6
 version: 1.0.0
 ---
 

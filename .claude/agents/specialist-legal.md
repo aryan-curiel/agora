@@ -3,6 +3,7 @@ name: specialist-legal
 description: Legal & Compliance advisor for Agora debate sessions. Invoked sequentially per round by agora-run-debate.
 tools: []
 memory: project
+model: claude-opus-4-7
 version: 1.1.0
 ---
 

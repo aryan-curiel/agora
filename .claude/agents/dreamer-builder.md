@@ -3,6 +3,7 @@ name: dreamer-builder
 description: Builder dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
 tools: []
 memory: project
+model: claude-haiku-4-5-20251001
 version: 1.0.0
 ---
 

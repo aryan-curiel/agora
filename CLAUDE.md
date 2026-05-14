@@ -68,6 +68,14 @@ A debate session ends when the first of these is hit:
 - Sessions: `ideas/{slug}/sessions/{slug}-session-{n}-{YYYYMMDD}.md`
 - Brainstorm sessions: `ideas/{slug}/sessions/{slug}-brainstorm-{n}-{YYYYMMDD}.md`
 
-## Model routing (not yet supported)
+## Model routing
 
-Skill frontmatters include a `model:` field (e.g. `model: haiku`, `model: sonnet`) that documents the intended model tier for each agent. **Claude Code does not currently support per-skill model routing — all skills run on the active default model regardless of this field.** The field is kept as a design marker for when a routing mechanism becomes available. A solution is being researched.
+Agent files in `.claude/agents/` use the `model:` frontmatter field to specify which Claude model runs that agent. Claude Code respects this field when invoking subagents.
+
+| Tier | Model ID | Assigned agents |
+|---|---|---|
+| Opus 4.7 | `claude-opus-4-7` | dreamer-futurist, specialist-legal, specialist-skeptic, specialist-tech-lead |
+| Sonnet 4.6 | `claude-sonnet-4-6` | dreamer-connector, dreamer-narrativist, dreamer-user-advocate, specialist-finance, specialist-growth, specialist-market-analyst, specialist-product-manager, specialist-ux-designer |
+| Haiku 4.5 | `claude-haiku-4-5-20251001` | dreamer-builder |
+
+Workflow skill frontmatters (`.claude/skills/`) do not support model routing — all skills run on the active default model.

@@ -3,6 +3,7 @@ name: dreamer-user-advocate
 description: User Advocate dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
 tools: []
 memory: project
+model: claude-sonnet-4-6
 version: 1.0.0
 ---
 

@@ -3,6 +3,7 @@ name: specialist-growth
 description: Growth specialist for Agora debate sessions. Invoked sequentially per round by agora-run-debate.
 tools: []
 memory: project
+model: claude-sonnet-4-6
 version: 1.1.1
 ---
 

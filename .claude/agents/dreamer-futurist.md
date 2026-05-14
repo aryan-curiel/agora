@@ -3,6 +3,7 @@ name: dreamer-futurist
 description: Futurist dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
 tools: []
 memory: project
+model: claude-opus-4-7
 version: 1.0.0
 ---
 

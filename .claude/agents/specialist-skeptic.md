@@ -3,6 +3,7 @@ name: specialist-skeptic
 description: Skeptic specialist for Agora debate and brainstorm sessions. Invoked sequentially per round by agora-run-debate; invoked for grounding after rounds 2-3 by agora-brainstorm.
 tools: []
 memory: project
+model: claude-opus-4-7
 version: 1.1.1
 ---
 
