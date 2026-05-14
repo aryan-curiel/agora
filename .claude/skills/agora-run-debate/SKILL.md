@@ -76,15 +76,10 @@ For each round:
    must see the prior specialists' responses from this round before contributing.
 
    For each specialist {name}:
-   a. Read .claude/agents/{name}/MEMORY.md if it exists. Save content as [MEMORY].
-      If the file does not exist, [MEMORY] is empty — omit [YOUR MEMORY] from the prompt.
-   b. Call the Agent tool (foreground — wait for this response before issuing the next):
+   a. Call the Agent tool (foreground — wait for this response before issuing the next):
       - subagent_type: "{name}"  (e.g. "specialist-finance")
       - description: "{Specialist display name} — Round {n}"
       - prompt:
-
-        [YOUR MEMORY]
-        {[MEMORY] — omit this block entirely if MEMORY.md did not exist}
 
         [CONSTRAINTS]
         {formatted constraint list if not null; omit this section if null}
@@ -146,50 +141,10 @@ For each round:
     | {n} | {today} | {score_before}% | {score_after}% | {rounds} | ideas/{slug}/sessions/{filename} |
 15. Update ideas_index.md with new score and session count.
 
-### Update agent memories
-
-16. Prepare memory-update prompts for all specialists, then launch them IN A SINGLE MESSAGE (parallel).
-
-    For each specialist {name} in roster:
-    a. Read .claude/agents/{name}/MEMORY.md. Save as [CUR_MEM_{name}]. If absent, use "".
-    b. Collect all messages from this specialist across all rounds as [CONTRIBUTIONS_{name}],
-       labeled "Round {n}: {message content}".
-
-    After preparing all prompts, issue ALL Agent calls in ONE message at once (do NOT wait for
-    one to finish before issuing the next — they are independent and can run in parallel):
-    For each specialist {name}:
-    - subagent_type: "{name}"  (e.g. "specialist-finance")
-    - description: "Memory update — {Specialist display name}"
-    - prompt:
-      MODE: memory-update
-
-      [CURRENT MEMORY]
-      {[CUR_MEM_{name}]}
-
-      [YOUR CONTRIBUTIONS]
-      {[CONTRIBUTIONS_{name}]}
-
-      [SESSION SYNTHESIS]
-      {synthesis from the final agora-score-round output}
-
-      [DATE]
-      {today's date YYYY-MM-DD}
-
-    c. After all Agent calls return, collect the returned MEMORY.md content from each.
-       Write all files in a single Bash call using heredocs — one per file — rather than
-       separate Write tool calls. Example:
-       ```bash
-       cat > .claude/agents/specialist-foo/MEMORY.md << 'EOF'
-       {content}
-       EOF
-       cat > .claude/agents/specialist-bar/MEMORY.md << 'EOF'
-       {content}
-       EOF
-       ```
-
 ### Evaluate KPIs and write analytics
 
-17. Evaluate the session KPIs defined in step 5:
+16. Evaluate the session KPIs defined in step 5:
+
 
     a. For each dimension target in [SESSION_KPIS]:
        - Met:     final_score >= target
@@ -209,7 +164,7 @@ For each round:
 
     d. Save as [KPI_RESULTS]: {dimension_results, question_results, kpi_score}
 
-18. Write session analytics — append one JSON line to analytics/sessions.jsonl
+17. Write session analytics — append one JSON line to analytics/sessions.jsonl
     (create the file if it does not exist; create analytics/ directory if needed).
     Use a single Bash call with `>>` rather than a Write tool call:
 
@@ -240,7 +195,7 @@ For each round:
 
 ### Print final summary
 
-19. Print:
+18. Print:
 
     ══ Session Complete ══════════════════════════
     Idea: {name}
@@ -260,13 +215,11 @@ For each round:
     • {dim 1}: {score}/10
     • {dim 2}: {score}/10
 
-    Specialist memories updated: {comma-separated list}
-
     Run /agora-run-debate {slug} to continue developing this idea.
 
 ### Post-session review (opt-in)
 
-20. Print a prompt to the user:
+19. Print a prompt to the user:
 
     ── Post-session options ───────────────────────
     • /agora-review-specialists {slug} — review specialist performance, generate improvement proposals

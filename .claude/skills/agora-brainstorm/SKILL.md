@@ -57,19 +57,11 @@ For each round (1 through max_brainstorm_rounds):
    Dreamers only cross-pollinate across rounds (via [BRAINSTORM HISTORY]), not within the same
    round — so all 5 can run concurrently. Do NOT issue them sequentially.
 
-   Before issuing any Agent calls, read each dreamer's memory file:
-   For each dreamer {name} in [futurist, builder, user-advocate, connector, narrativist]:
-   a. Read `.claude/agents/dreamer-{name}/MEMORY.md` if it exists. Save content as [MEM_{name}].
-      If absent, omit [YOUR MEMORY] from that dreamer's prompt.
-
-   Then IN A SINGLE MESSAGE, issue all 5 dreamer Agent calls at once:
+   In a single message, issue all 5 dreamer Agent calls at once:
    For each dreamer {name}:
    - subagent_type: "dreamer-{name}"  (e.g. "dreamer-futurist")
    - description: "The {Dreamer display name} — Round {n}"
    - prompt:
-
-     [YOUR MEMORY]
-     {[MEM_{name}] — omit this block entirely if MEMORY.md did not exist}
 
      [IDEA CONTEXT]
      Name: {idea name}
@@ -104,13 +96,9 @@ For each round (1 through max_brainstorm_rounds):
       Add all to [ALL_PROPOSALS].
 
 9. After each round (rounds 2 and 3 only): invoke the Skeptic as a subagent (foreground).
-   Before calling, read `.claude/agents/specialist-skeptic/MEMORY.md` if it exists; save as [SKEPTIC_MEMORY].
    - subagent_type: "specialist-skeptic"
    - description: "Skeptic grounding — Round {n}"
    - prompt:
-     [YOUR MEMORY]
-     {[SKEPTIC_MEMORY] — omit this block entirely if MEMORY.md did not exist}
-
      MODE: brainstorm-grounding
 
      [IDEA CONTEXT]
@@ -177,51 +165,9 @@ For each round (1 through max_brainstorm_rounds):
     - If the column does not exist: add it between `Sessions` and `Last Updated`, set to 0 for all ideas, then set this idea to 1
     - Update `Last Updated` to today's date for this idea
 
-### Update dreamer memories
-
-13. Prepare memory-update prompts for all dreamers, then launch them IN A SINGLE MESSAGE (parallel).
-
-    For each dreamer {name} in [futurist, builder, user-advocate, connector, narrativist]:
-    a. Read `.claude/agents/dreamer-{name}/MEMORY.md`. Save as [CUR_MEM_{name}].
-       If absent, use "".
-    b. Collect all proposals from this dreamer across all rounds as [CONTRIBUTIONS_{name}],
-       labeled "Round {n}: {full output}".
-
-    Then IN A SINGLE MESSAGE, issue all 5 dreamer memory-update Agent calls at once
-    (do NOT wait for one to finish before issuing the next — they are independent):
-    For each dreamer {name}:
-    - subagent_type: "dreamer-{name}"
-    - description: "Memory update — The {Dreamer display name}"
-    - prompt:
-      MODE: memory-update
-
-      [CURRENT MEMORY]
-      {[CUR_MEM_{name}]}
-
-      [YOUR CONTRIBUTIONS]
-      {[CONTRIBUTIONS_{name}]}
-
-      [SESSION SYNTHESIS]
-      {brief synthesis of all proposals generated this session}
-
-      [DATE]
-      {today's date YYYY-MM-DD}
-
-    c. After all 5 Agent calls return, collect the returned MEMORY.md content from each.
-       Write all 5 files in a single Bash call using heredocs — one per file:
-       ```bash
-       cat > .claude/agents/dreamer-futurist/MEMORY.md << 'EOF'
-       {content}
-       EOF
-       cat > .claude/agents/dreamer-builder/MEMORY.md << 'EOF'
-       {content}
-       EOF
-       {... repeat for all 5 dreamers ...}
-       ```
-
 ### Write analytics
 
-14. Append one JSON line to `analytics/brainstorms.jsonl` (create the file if it does not exist).
+13. Append one JSON line to `analytics/brainstorms.jsonl` (create the file if it does not exist).
     Use a heredoc in a single Bash call to avoid quoting issues with JSON values:
     ```bash
     cat >> analytics/brainstorms.jsonl << 'EOF'
@@ -255,7 +201,7 @@ For each round (1 through max_brainstorm_rounds):
     }
     ```
 
-14b. For each dreamer, append one JSON line to `analytics/dreamers.jsonl` (create if it does not exist).
+13b. For each dreamer, append one JSON line to `analytics/dreamers.jsonl` (create if it does not exist).
     Evaluate each dreamer's contributions across all rounds using these criteria:
 
     **Scores (1–5):**
@@ -294,7 +240,7 @@ For each round (1 through max_brainstorm_rounds):
 
 ### Print final summary
 
-15. Print:
+14. Print:
     ```
     ══ Brainstorm Complete ═══════════════════════════════════
     Idea: {name}
