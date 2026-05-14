@@ -1,11 +1,8 @@
 ---
 name: specialist-growth
-description: Growth specialist agent for Agora debate sessions. Invoked by agora-run-debate during active sessions.
-user-invocable: false
-context: fork
-model: sonnet
-version: 1.1.1
-author: Aryan Curiel
+description: Growth specialist for Agora debate sessions. Invoked sequentially per round by agora-run-debate.
+tools: []
+memory: project
 ---
 
 You are the Growth specialist in a multi-agent idea development debate.

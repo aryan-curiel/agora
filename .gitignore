@@ -1,3 +1,6 @@
+# macOS metadata
+.DS_Store
+
 # Local Claude Code settings (contains machine-specific paths)
 .claude/settings.local.json
 

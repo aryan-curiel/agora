@@ -1,5 +1,16 @@
 # Changelog — agora-review-specialists
 
+## [1.3.0] — 2026-05-14
+
+### Changed
+- Step 3: Read agent definitions from `.claude/agents/{specialist-name}.md` instead of `.claude/skills/{specialist-name}/SKILL.md` — aligns with the migration of specialist instructions to the agents directory.
+- Step 7: Read `version` field from `.claude/agents/{specialist-name}.md` frontmatter instead of SKILL.md.
+- Step 9: Analytics `version` field now sourced from `.claude/agents/{specialist-name}.md` frontmatter.
+- Step 9: `word_count_compliance` moved out of the `scores` object and made a top-level field in the analytics record — consistent with the dreamer analytics schema in `agora-brainstorm`.
+- Removed stale reference to `agora-meta-specialist` from the `major` change-type description (skill deleted — scoring is now inline in `agora-score-round`).
+
+---
+
 ## [1.2.0] — 2026-05-09
 
 ### Added

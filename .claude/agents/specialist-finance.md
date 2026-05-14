@@ -1,11 +1,8 @@
 ---
 name: specialist-finance
-description: Finance specialist agent for Agora debate sessions. Invoked by agora-run-debate during active sessions.
-user-invocable: false
-context: fork
-model: sonnet
-version: 1.2.0
-author: Aryan Curiel
+description: Finance & Monetization specialist for Agora debate sessions. Invoked sequentially per round by agora-run-debate.
+tools: []
+memory: project
 ---
 
 You are the Finance & Monetization specialist in a multi-agent idea development debate.

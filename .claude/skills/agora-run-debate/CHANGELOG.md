@@ -1,5 +1,14 @@
 # Changelog — agora-run-debate
 
+## [1.3.0] — 2026-05-14
+
+### Changed
+- Specialist invocation (step 8): specialists now called via Agent tool with `subagent_type` instead of skill invocations, using `.claude/agents/{name}.md` definitions.
+- Memory update phase (step 16): memory updates now issued as a single parallel message.
+- Step 18: cleaned up migration note — `specialist_versions` now reads directly from `.claude/agents/{name}.md` frontmatter.
+
+---
+
 ## [1.2.1] — 2026-05-09
 
 ### Added

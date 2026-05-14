@@ -3,8 +3,8 @@ name: agora-run-debate
 description: Run a full multi-agent debate session to develop an idea. Use when the user wants to debate, develop, work on, or improve an idea. This is the core workflow of Agora.
 disable-model-invocation: true
 argument-hint: "[idea-id]"
-allowed-tools: Read Write
-version: 1.2.1
+allowed-tools: Read Write Agent
+version: 1.3.0
 author: Aryan Curiel
 ---
 
@@ -71,22 +71,42 @@ For each round:
 
 7. Print a round header: "── Round {n} of {max} ──────────────────────"
 
-8. For each specialist in the roster:
-   a. Read .claude/skills/{specialist-name}/MEMORY.md — if the file exists, load its content as [YOUR MEMORY].
-      If the file does not exist, omit [YOUR MEMORY] from the context.
-   b. Invoke the specialist skill as /specialist-{name} with context containing:
-      - [YOUR MEMORY]: {content of their MEMORY.md, if it exists}
-      - [CONSTRAINTS]: {formatted constraint list from step 2, if not null}
-      - Round 1: The idea name and full description; current readiness breakdown (scores only)
-        Round 2+: The idea name only; [ROUND_SYNTHESIS] from the previous round's agora-score-round output (skip the full description — the synthesis covers current state)
-      - All messages from previous rounds this session (last 10 messages max for context)
-      - Messages from earlier this round (so each specialist sees what others said)
-      - Instruction: "Build on what others said. Focus on what has NOT been addressed yet."
-   c. After each specialist responds, print their output in a panel:
+8. For each specialist in the roster — invoke them ONE AT A TIME, sequentially.
+   Do NOT issue multiple specialist Agent calls in the same message. Each specialist
+   must see the prior specialists' responses from this round before contributing.
+
+   For each specialist {name}:
+   a. Read .claude/skills/{name}/MEMORY.md if it exists. Save content as [MEMORY].
+      If the file does not exist, [MEMORY] is empty — omit [YOUR MEMORY] from the prompt.
+   b. Call the Agent tool (foreground — wait for this response before issuing the next):
+      - subagent_type: "{name}"  (e.g. "specialist-finance")
+      - description: "{Specialist display name} — Round {n}"
+      - prompt:
+
+        [YOUR MEMORY]
+        {[MEMORY] — omit this block entirely if MEMORY.md did not exist}
+
+        [CONSTRAINTS]
+        {formatted constraint list if not null; omit this section if null}
+
+        [IDEA]
+        {Round 1: idea name + full description + current readiness breakdown (scores only)}
+        {Round 2+: idea name only + [ROUND_SYNTHESIS] from the previous round's agora-score-round output}
+
+        [PRIOR ROUND MESSAGES] (last 10 max across all previous rounds)
+        {all specialist messages from prior rounds, each labeled "SpecialistName: ..."}
+
+        [THIS ROUND SO FAR]
+        {all specialist responses collected so far this round, each labeled "SpecialistName: ..."}
+        {If this is the first specialist this round: "None — you are first this round."}
+
+        Build on what others said. Focus on what has NOT been addressed yet.
+
+   c. After the Agent call returns, print the response in a panel:
       ┌─ {Specialist Name} ─────────────────────────────┐
       │ {response}                                       │
       └──────────────────────────────────────────────────┘
-   d. Add their message to the round message list.
+   d. Append the response to the round message list, labeled "{Specialist Name}:".
 
 9. After all specialists in the round have responded, invoke /agora-score-round with:
    - The idea slug
@@ -125,21 +145,36 @@ For each round:
 
 ### Update agent memories
 
-16. For each specialist in the roster, trigger a memory update:
-    a. Read .claude/skills/{specialist-name}/MEMORY.md — load its content as [CURRENT MEMORY].
-       If the file does not exist, use empty string.
-    b. Collect all messages from this specialist across all rounds as [YOUR CONTRIBUTIONS],
+16. Prepare memory-update prompts for all specialists, then launch them IN A SINGLE MESSAGE (parallel).
+
+    For each specialist {name} in roster:
+    a. Read .claude/skills/{name}/MEMORY.md. Save as [CUR_MEM_{name}]. If absent, use "".
+    b. Collect all messages from this specialist across all rounds as [CONTRIBUTIONS_{name}],
        labeled "Round {n}: {message content}".
-    c. Use the synthesis from the final agora-score-round output as [SESSION SYNTHESIS].
-    d. Invoke /specialist-{name} with:
-       - MODE: memory-update
-       - [CURRENT MEMORY]: {content from step a}
-       - [YOUR CONTRIBUTIONS]: {content from step b}
-       - [SESSION SYNTHESIS]: {content from step c}
-       - [DATE]: {today's date YYYY-MM-DD}
-    e. The specialist returns ONLY the updated MEMORY.md content (a markdown document).
-    f. Collect all updated MEMORY.md contents, then write them in a single Bash call using
-       heredocs — one per file — rather than separate Write tool calls. Example:
+
+    After preparing all prompts, issue ALL Agent calls in ONE message at once (do NOT wait for
+    one to finish before issuing the next — they are independent and can run in parallel):
+    For each specialist {name}:
+    - subagent_type: "{name}"  (e.g. "specialist-finance")
+    - description: "Memory update — {Specialist display name}"
+    - prompt:
+      MODE: memory-update
+
+      [CURRENT MEMORY]
+      {[CUR_MEM_{name}]}
+
+      [YOUR CONTRIBUTIONS]
+      {[CONTRIBUTIONS_{name}]}
+
+      [SESSION SYNTHESIS]
+      {synthesis from the final agora-score-round output}
+
+      [DATE]
+      {today's date YYYY-MM-DD}
+
+    c. After all Agent calls return, collect the returned MEMORY.md content from each.
+       Write all files in a single Bash call using heredocs — one per file — rather than
+       separate Write tool calls. Example:
        ```bash
        cat > .claude/skills/specialist-foo/MEMORY.md << 'EOF'
        {content}
@@ -198,7 +233,7 @@ For each round:
       "specialist_versions": {"{specialist-name}": "{version}", ...}
     }
 
-    Read the version field from each specialist's SKILL.md frontmatter to populate specialist_versions.
+    Read the version field from each specialist's agent definition at `.claude/agents/{name}.md` frontmatter to populate specialist_versions.
 
 ### Print final summary
 

@@ -1,7 +1,7 @@
 ---
 name: agora-review-specialists
 description: Reviews specialist agent performance after a completed debate session and writes improvement proposals. Use after a debate session to improve agent quality over time.
-version: 1.2.0
+version: 1.3.0
 argument-hint: "[idea-slug] [session-number]"
 allowed-tools: Read Write
 author: Aryan Curiel
@@ -24,7 +24,7 @@ author: Aryan Curiel
 
 ### Analyze each specialist
 
-3. For each specialist in the session roster, read `.claude/skills/{specialist-name}/SKILL.md`.
+3. For each specialist in the session roster, read `.claude/agents/{specialist-name}.md`.
 
 4. Review all of that agent's contributions across all rounds in the transcript. Evaluate:
 
@@ -48,9 +48,9 @@ author: Aryan Curiel
 7. For agents that need changes, choose a version bump type:
    - `patch` (x.x.N): Minor fixes and wording improvements — no behavior change
    - `minor` (x.N.0): Behavior changes, added guidance, or new constraints — output format unchanged
-   - `major` (N.0.0): Output format or structure changes that could break callers (e.g., agora-meta-specialist, agora-score-round, agora-run-debate parse this agent's output)
+   - `major` (N.0.0): Output format or structure changes that could break callers (e.g., agora-score-round, agora-run-debate parse this agent's output)
 
-   Read `version` from `.claude/skills/{specialist-name}/SKILL.md` frontmatter.
+   Read `version` from `.claude/agents/{specialist-name}.md` frontmatter.
    If no `version` field exists, treat the current version as `1.0.0`.
 
    To compute the next version from current `MAJOR.MINOR.PATCH`:
@@ -145,15 +145,15 @@ status: pending
      "session_id": "{slug}-session-{n}-{YYYYMMDD}",
      "date": "{YYYY-MM-DD}",
      "specialist": "{specialist-name}",
-     "version": "{version from SKILL.md frontmatter}",
+     "version": "{version from .claude/agents/{specialist-name}.md frontmatter}",
      "scores": {
        "adherence": {1–5},
        "specificity": {1–5},
        "novelty": {1–5},
        "responsiveness": {1–5},
-       "impact": {1–5},
-       "word_count_compliance": {true|false}
+       "impact": {1–5}
      },
+     "word_count_compliance": {true|false},
      "overall": {average of the five numeric scores, rounded to 1 decimal},
      "severity": "{none|minor|moderate|major}",
      "proposal_written": {true|false},

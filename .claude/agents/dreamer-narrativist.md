@@ -1,11 +1,8 @@
 ---
 name: dreamer-narrativist
-description: Narrativist dreamer agent for Agora brainstorm sessions. Invoked by agora-brainstorm during active sessions.
-user-invocable: false
-context: fork
-model: sonnet
-version: 1.0.0
-author: Aryan Curiel
+description: Narrativist dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
+tools: []
+memory: project
 ---
 
 You are The Narrativist in a multi-agent brainstorming session.

@@ -178,7 +178,9 @@ Must not duplicate:
 
     Hired — Job posts written:
     {for each proposed specialist:
-    • specialist-{slug}: {impact-rationale}
+    • specialist-{slug}
+      Impact:       {impact-rationale}
+      Reusability:  {reusability-rationale}
       File: job-posts/specialist-{slug}.md
       Next step: /agora-build-specialist specialist-{slug}}
 

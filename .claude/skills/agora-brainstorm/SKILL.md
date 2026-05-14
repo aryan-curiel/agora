@@ -3,8 +3,8 @@ name: agora-brainstorm
 description: Run a full multi-agent brainstorm session to expand an idea's possibility space. Use when the user wants to brainstorm, explore, or generate proposals for an idea. Produces a set of proposals organized by time horizon (quick wins, growth features, moonshots). Does not affect readiness scores.
 disable-model-invocation: true
 argument-hint: "[idea-id]"
-allowed-tools: Read Write
-version: 1.0.0
+allowed-tools: Read Write Agent
+version: 1.1.0
 author: Aryan Curiel
 ---
 
@@ -53,52 +53,87 @@ For each round (1 through max_brainstorm_rounds):
    - Round 2: `futurist → moonshot; builder → quick-win; user-advocate → growth-feature; connector → growth-feature; narrativist → growth-feature or moonshot`
    - Round 3: Assess which horizon has the fewest proposals so far and direct each dreamer to prioritize it.
 
-8. For each dreamer in order — futurist, builder, user-advocate, connector, narrativist:
+8. Invoke ALL 5 dreamers in parallel for this round.
+   Dreamers only cross-pollinate across rounds (via [BRAINSTORM HISTORY]), not within the same
+   round — so all 5 can run concurrently. Do NOT issue them sequentially.
 
-   a. Read `.claude/skills/dreamer-{name}/MEMORY.md` if it exists. Load as [YOUR MEMORY].
-   
-   b. Invoke `/dreamer-{name}` with context containing:
-      - [YOUR MEMORY]: {content of their MEMORY.md, if it exists}
-      - [IDEA CONTEXT]: {idea name, full description, open questions}
-      - [BRAINSTORM HISTORY]: {all proposals generated so far this session, formatted as a list}
-      - [HORIZON ASSIGNMENT]: {this round's horizon directive for this dreamer}
-      - Round number and any cross-pollination instruction (Round 2+: "You must build on or fork at least one proposal from another dreamer in [BRAINSTORM HISTORY]")
-   
-   c. Print their output in a panel:
+   Before issuing any Agent calls, read each dreamer's memory file:
+   For each dreamer {name} in [futurist, builder, user-advocate, connector, narrativist]:
+   a. Read `.claude/skills/dreamer-{name}/MEMORY.md` if it exists. Save content as [MEM_{name}].
+      If absent, omit [YOUR MEMORY] from that dreamer's prompt.
+
+   Then IN A SINGLE MESSAGE, issue all 5 dreamer Agent calls at once:
+   For each dreamer {name}:
+   - subagent_type: "dreamer-{name}"  (e.g. "dreamer-futurist")
+   - description: "The {Dreamer display name} — Round {n}"
+   - prompt:
+
+     [YOUR MEMORY]
+     {[MEM_{name}] — omit this block entirely if MEMORY.md did not exist}
+
+     [IDEA CONTEXT]
+     Name: {idea name}
+     Description: {full description}
+     Open questions: {open questions list}
+     {If existing proposals exist: "Existing proposals: {count} already recorded — do not repeat."}
+
+     [BRAINSTORM HISTORY]
+     {All proposals from PREVIOUS completed rounds, formatted as a list.
+      If this is Round 1, write: "None — this is the first round."}
+
+     [HORIZON ASSIGNMENT]
+     {This dreamer's horizon directive for this round from step 7}
+
+     Round {n} of {max_brainstorm_rounds}.
+     {Round 2+: "You must explicitly build on or fork at least one proposal from another dreamer in [BRAINSTORM HISTORY]."}
+
+   b. After all 5 Agent calls return, print each response in canonical order —
+      Futurist, Builder, User Advocate, Connector, Narrativist — regardless of completion order:
       ```
       ┌─ The {Dreamer Display Name} ─────────────────────────────┐
       │ {response}                                                │
       └────────────────────────────────────────────────────────── ┘
       ```
-   
-   d. Parse all proposals from their response. For each proposal, record:
+
+   c. Parse all proposals from all 5 responses. For each proposal, record:
       - horizon (quick-win | growth-feature | moonshot)
       - title
       - description
       - dreamer name
       - round number
-      Add to [ALL_PROPOSALS].
+      Add all to [ALL_PROPOSALS].
 
-9. After each round (rounds 2 and 3 only): invoke `/specialist-skeptic` with context:
-   ```
-   MODE: brainstorm-grounding
-   [IDEA CONTEXT]: {idea name and description}
-   [ALL PROPOSALS SO FAR]: {full list of proposals from all rounds so far}
-   
-   You are grounding a brainstorm session, not challenging the original idea.
-   Review the proposals above. Flag 2–3 that are structurally broken, already exist as products, or depend on a false premise. Give one sentence per flag.
-   End with exactly 2 sharp questions about the most fragile proposals.
-   
-   Format:
-   
-   Skeptic Flags:
-   - **{Proposal title}**: {one sentence reason}
-   
-   Questions:
-   1. {question?}
-   2. {question?}
-   ```
-   
+9. After each round (rounds 2 and 3 only): invoke the Skeptic as a subagent (foreground).
+   Before calling, read `.claude/skills/specialist-skeptic/MEMORY.md` if it exists; save as [SKEPTIC_MEMORY].
+   - subagent_type: "specialist-skeptic"
+   - description: "Skeptic grounding — Round {n}"
+   - prompt:
+     [YOUR MEMORY]
+     {[SKEPTIC_MEMORY] — omit this block entirely if MEMORY.md did not exist}
+
+     MODE: brainstorm-grounding
+
+     [IDEA CONTEXT]
+     Name: {idea name}
+     Description: {description}
+
+     [ALL PROPOSALS SO FAR]
+     {full list of all proposals from all rounds so far}
+
+     You are grounding a brainstorm session, not challenging the original idea.
+     Review the proposals above. Flag 2–3 that are structurally broken, already exist as products,
+     or depend on a false premise. Give one sentence per flag.
+     End with exactly 2 sharp questions about the most fragile proposals.
+
+     Format:
+
+     Skeptic Flags:
+     - **{Proposal title}**: {one sentence reason}
+
+     Questions:
+     1. {question?}
+     2. {question?}
+
    Print skeptic output in a panel labeled `┌─ The Skeptic (Grounding) ─...`.
    Record flagged proposal titles and questions as [SKEPTIC_FLAGS] and [SKEPTIC_QUESTIONS].
 
@@ -144,18 +179,36 @@ For each round (1 through max_brainstorm_rounds):
 
 ### Update dreamer memories
 
-13. For each dreamer, trigger a memory update:
-    a. Read `.claude/skills/dreamer-{name}/MEMORY.md` — load as [CURRENT MEMORY]. If absent, use empty string.
-    b. Collect all proposals from this dreamer across all rounds as [YOUR CONTRIBUTIONS], labeled "Round {n}: {full output}".
-    c. Use a brief synthesis of all proposals generated as [SESSION SYNTHESIS].
-    d. Invoke `/dreamer-{name}` with:
-       - MODE: memory-update
-       - [CURRENT MEMORY]: {content from step a}
-       - [YOUR CONTRIBUTIONS]: {content from step b}
-       - [SESSION SYNTHESIS]: {content from step c}
-       - [DATE]: {today's date YYYY-MM-DD}
-    e. The dreamer returns ONLY the updated MEMORY.md content.
-    f. Collect all updated MEMORY.md contents, then write them in a single Bash call using heredocs:
+13. Prepare memory-update prompts for all dreamers, then launch them IN A SINGLE MESSAGE (parallel).
+
+    For each dreamer {name} in [futurist, builder, user-advocate, connector, narrativist]:
+    a. Read `.claude/skills/dreamer-{name}/MEMORY.md`. Save as [CUR_MEM_{name}].
+       If absent, use "".
+    b. Collect all proposals from this dreamer across all rounds as [CONTRIBUTIONS_{name}],
+       labeled "Round {n}: {full output}".
+
+    Then IN A SINGLE MESSAGE, issue all 5 dreamer memory-update Agent calls at once
+    (do NOT wait for one to finish before issuing the next — they are independent):
+    For each dreamer {name}:
+    - subagent_type: "dreamer-{name}"
+    - description: "Memory update — The {Dreamer display name}"
+    - prompt:
+      MODE: memory-update
+
+      [CURRENT MEMORY]
+      {[CUR_MEM_{name}]}
+
+      [YOUR CONTRIBUTIONS]
+      {[CONTRIBUTIONS_{name}]}
+
+      [SESSION SYNTHESIS]
+      {brief synthesis of all proposals generated this session}
+
+      [DATE]
+      {today's date YYYY-MM-DD}
+
+    c. After all 5 Agent calls return, collect the returned MEMORY.md content from each.
+       Write all 5 files in a single Bash call using heredocs — one per file:
        ```bash
        cat > .claude/skills/dreamer-futurist/MEMORY.md << 'EOF'
        {content}
@@ -190,7 +243,7 @@ For each round (1 through max_brainstorm_rounds):
       "flagged_proposals": {count of skeptic flags},
       "dreamers": ["dreamer-futurist", "dreamer-builder", "dreamer-user-advocate", "dreamer-connector", "dreamer-narrativist"],
       "dreamer_versions": {
-        "dreamer-futurist": "{version from SKILL.md frontmatter}",
+        "dreamer-futurist": "{version from .claude/agents/dreamer-futurist.md frontmatter}",
         "dreamer-builder": "{version}",
         "dreamer-user-advocate": "{version}",
         "dreamer-connector": "{version}",
@@ -220,14 +273,14 @@ For each round (1 through max_brainstorm_rounds):
       "session_id": "{slug}-brainstorm-{n}-{YYYYMMDD}",
       "date": "{YYYY-MM-DD}",
       "dreamer": "dreamer-{name}",
-      "version": "{version from SKILL.md frontmatter}",
+      "version": "{version from .claude/agents/dreamer-{name}.md frontmatter}",
       "scores": {
         "originality": {1–5},
         "specificity": {1–5},
         "cross_pollination": {1–5},
-        "horizon_adherence": {1–5},
-        "word_count_compliance": {true|false}
+        "horizon_adherence": {1–5}
       },
+      "word_count_compliance": {true|false},
       "proposals_count": {integer},
       "flagged_count": {integer},
       "overall": {average of four numeric scores, 2 decimal places},

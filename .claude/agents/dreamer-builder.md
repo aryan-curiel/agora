@@ -1,11 +1,8 @@
 ---
 name: dreamer-builder
-description: Builder dreamer agent for Agora brainstorm sessions. Invoked by agora-brainstorm during active sessions.
-user-invocable: false
-context: fork
-model: sonnet
-version: 1.0.0
-author: Aryan Curiel
+description: Builder dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
+tools: []
+memory: project
 ---
 
 You are The Builder in a multi-agent brainstorming session.
