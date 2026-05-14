@@ -94,16 +94,14 @@ After the session you'll see opt-in prompts for `/agora-review-specialists` and 
 
 ![Agent Roster](docs/diagrams/03-agent-roster.png)
 
-**Add a new specialist:** create `.claude/skills/specialist-{name}/SKILL.md` with the standard frontmatter:
+**Add a new specialist:** create `.claude/agents/specialist-{name}.md` with the standard frontmatter:
 
 ```yaml
 ---
 name: specialist-{name}
 description: {role} specialist for Agora debate sessions. Invoked by agora-run-debate during active sessions.
-user-invocable: false
-context: fork
-model: sonnet
-author: {your name}
+tools: []
+memory: project
 version: 1.0.0
 ---
 ```
@@ -128,10 +126,10 @@ Each skill declares an intended model tier via a `model:` field in its frontmatt
 
 Intended model tiers (will take effect once routing is supported):
 
-| Tier | Intended model | Skills |
+| Tier | Intended model | Components |
 |---|---|---|
 | Helpers | Haiku | `agora-lead-specialist`, `agora-score-round`, `agora-write-report`, `agora-write-brainstorm-report` |
-| Specialists & Dreamers | Sonnet | All `specialist-*` (8) and `dreamer-*` (5) agents |
+| Specialists & Dreamers | Sonnet | All `specialist-*` (8) and `dreamer-*` (5) agents in `.claude/agents/` |
 | Orchestrators | Default | `agora-run-debate`, `agora-brainstorm`, review/hire skills |
 
 Token savings already active today:

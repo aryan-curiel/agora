@@ -67,7 +67,7 @@ author: Aryan Curiel
 
 ### Check for existing pending proposals
 
-8-pre. Before writing any proposal file, scan `.claude/skills/{specialist-name}/` for existing `PROPOSAL-v*.md` files:
+8-pre. Before writing any proposal file, scan `.claude/agents/{specialist-name}/` for existing `PROPOSAL-v*.md` files:
    - Read each matching file and check its `status` field in the frontmatter.
    - If a file has `status: pending`, it is an unapplied proposal — **update it instead of creating a new one**.
    - Compare the `change-type` in the existing proposal against the newly determined change-type:
@@ -81,7 +81,7 @@ author: Aryan Curiel
 ### Write proposal files
 
 8. For each specialist with severity `minor`, `moderate`, or `major`:
-   a. Write `.claude/skills/{specialist-name}/PROPOSAL-v{next-version}.md` with this exact structure:
+   a. Write `.claude/agents/{specialist-name}/PROPOSAL-v{next-version}.md` with this exact structure:
 
 ---
 specialist: {specialist-name}

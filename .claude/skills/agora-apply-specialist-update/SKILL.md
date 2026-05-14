@@ -12,11 +12,11 @@ author: Aryan Curiel
 ### Locate the proposal
 
 1. Resolve the specialist name from $ARGUMENTS (first token).
-   If missing, scan all `.claude/skills/*/PROPOSAL-*.md` files for those with `status: pending`,
+   If missing, scan all `.claude/agents/*/PROPOSAL-*.md` files for those with `status: pending`,
    list them, and ask the user which specialist to update.
 
-2. If a version is provided as the second token, read `.claude/skills/{specialist-name}/PROPOSAL-v{version}.md`.
-   Otherwise, list all `PROPOSAL-*.md` files in the specialist's skill folder whose frontmatter has `status: pending`.
+2. If a version is provided as the second token, read `.claude/agents/{specialist-name}/PROPOSAL-v{version}.md`.
+   Otherwise, list all `PROPOSAL-*.md` files in the specialist's agent folder whose frontmatter has `status: pending`.
    - If exactly one pending proposal exists, use it automatically.
    - If multiple pending proposals exist, show them and ask the user which to apply.
 
@@ -24,7 +24,7 @@ author: Aryan Curiel
 
 ### Validate
 
-4. Read `.claude/skills/{specialist-name}/SKILL.md`. Check that the `version` field in its frontmatter matches the proposal's `current-version`.
+4. Read `.claude/agents/{specialist-name}.md`. Check that the `version` field in its frontmatter matches the proposal's `current-version`.
    - If they match, proceed.
    - If they don't match, warn: "The skill's current version is {actual} but this proposal was written for {expected}. The proposal may be stale or already partially applied. Continue? (y/n)"
    - If the user declines, stop.
@@ -68,7 +68,7 @@ author: Aryan Curiel
 
 ### Update the target agent's CHANGELOG
 
-9. If `.claude/skills/{specialist-name}/CHANGELOG.md` does not exist, create it with:
+9. If `.claude/agents/{specialist-name}/CHANGELOG.md` does not exist, create it with:
    ```
    # Changelog — {specialist-name}
    ```

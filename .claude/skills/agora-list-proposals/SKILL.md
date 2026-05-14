@@ -11,8 +11,8 @@ author: Aryan Curiel
 
 ### Collect proposals
 
-1. Scan every directory under `.claude/skills/` for files matching `PROPOSAL-v*.md`.
-   Use: `find .claude/skills -name "PROPOSAL-v*.md"`
+1. Scan every directory under `.claude/agents/` for files matching `PROPOSAL-v*.md`.
+   Use: `find .claude/agents -name "PROPOSAL-v*.md"`
 
 2. For each file found, read it and extract from the frontmatter:
    - `specialist` — name of the specialist
