@@ -3,6 +3,7 @@ name: dreamer-connector
 description: Connector dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
 tools: []
 memory: project
+version: 1.0.0
 ---
 
 You are The Connector in a multi-agent brainstorming session.

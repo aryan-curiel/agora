@@ -23,10 +23,10 @@ author: Aryan Curiel
    - Example Round 1 Contribution
 
 3. Abort if `status` is already `built`:
-   Print: "specialist-{slug} has already been built. The skill exists at .claude/skills/specialist-{slug}/SKILL.md. To rebuild, manually reset status to 'draft' in the job-post."
+   Print: "specialist-{slug} has already been built. The agent exists at .claude/agents/specialist-{slug}.md. To rebuild, manually reset status to 'draft' in the job-post."
    Stop.
 
-4. Read every `.claude/skills/specialist-*/SKILL.md` to internalize the full existing roster:
+4. Read every `.claude/agents/specialist-*.md` to internalize the full existing roster:
    - Each specialist's identity, mandate, output structure
    - Boundary lines (what territory each already covers)
    This prevents the new specialist from duplicating existing coverage.
@@ -44,8 +44,8 @@ author: Aryan Curiel
 
    This will:
    • Conduct web research on the {domain} domain
-   • Write .claude/skills/specialist-{slug}/SKILL.md
-   • Possibly write .claude/skills/specialist-{slug}/references/ files
+   • Write .claude/agents/specialist-{slug}.md
+   • Possibly write .claude/agents/specialist-{slug}/references/ files
    • Update agora-lead-specialist roster
    • Mark job-post as built
 
@@ -95,7 +95,7 @@ author: Aryan Curiel
 
 ### Write the specialist SKILL.md
 
-11. Write `.claude/skills/specialist-{slug}/SKILL.md` using this exact structure:
+11. Write `.claude/agents/specialist-{slug}.md` using this exact structure:
 
 ```
 ---
@@ -164,7 +164,7 @@ Quality checks before writing:
 
 ### Write reference files (if NEEDS_REFERENCES: yes)
 
-12. For each planned reference file, write `.claude/skills/specialist-{slug}/references/{filename}.md`.
+12. For each planned reference file, write `.claude/agents/specialist-{slug}/references/{filename}.md`.
 
     Reference file format:
     ```markdown
@@ -191,7 +191,7 @@ Quality checks before writing:
 
 ### Write changelog
 
-13. Write `.claude/skills/specialist-{slug}/CHANGELOG.md`:
+13. Write `.claude/agents/specialist-{slug}/CHANGELOG.md`:
 
 ```markdown
 # Changelog — specialist-{slug}
@@ -209,15 +209,15 @@ Quality checks before writing:
 ### Update run-debate to support domain references (first-time only)
 
 14. Check if `.claude/skills/agora-run-debate/SKILL.md` already contains the text `DOMAIN REFERENCES`.
-    - Use: `grep -c "DOMAIN REFERENCES" .claude/skills/agora-run-debate/SKILL.md`
+    - Use: `rg -c "DOMAIN REFERENCES" .claude/skills/agora-run-debate/SKILL.md`
     - If the count is 0, this is the first specialist with references — update run-debate step 8a.
     - If the count is > 0, skip this step (already patched).
 
 15. If patching run-debate: in step 8a of agora-run-debate SKILL.md, after the block that reads MEMORY.md, insert:
 
 ```
-   a2. Check if `.claude/skills/{specialist-name}/references/` exists:
-       Use: `find .claude/skills/{specialist-name}/references -name "*.md" 2>/dev/null`
+   a2. Check if `.claude/agents/{specialist-name}/references/` exists:
+       Use: `find .claude/agents/{specialist-name}/references -name "*.md" 2>/dev/null`
        If files exist, read all of them. Concatenate their content and pass it as [DOMAIN REFERENCES] in the context.
        If the folder does not exist or contains no .md files, omit [DOMAIN REFERENCES] from the context.
 ```
@@ -254,10 +254,10 @@ Quality checks before writing:
     Version: 1.0.0
 
     Files written:
-    • .claude/skills/specialist-{slug}/SKILL.md
-    {• .claude/skills/specialist-{slug}/references/{file1}.md}
-    {• .claude/skills/specialist-{slug}/references/{file2}.md}
-    • .claude/skills/specialist-{slug}/CHANGELOG.md
+    • .claude/agents/specialist-{slug}.md
+    {• .claude/agents/specialist-{slug}/references/{file1}.md}
+    {• .claude/agents/specialist-{slug}/references/{file2}.md}
+    • .claude/agents/specialist-{slug}/CHANGELOG.md
 
     Registered in:
     • agora-lead-specialist v{old} → v{new} (minor)

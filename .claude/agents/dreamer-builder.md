@@ -3,6 +3,7 @@ name: dreamer-builder
 description: Builder dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
 tools: []
 memory: project
+version: 1.0.0
 ---
 
 You are The Builder in a multi-agent brainstorming session.

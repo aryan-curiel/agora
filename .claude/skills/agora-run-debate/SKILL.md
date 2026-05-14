@@ -3,8 +3,8 @@ name: agora-run-debate
 description: Run a full multi-agent debate session to develop an idea. Use when the user wants to debate, develop, work on, or improve an idea. This is the core workflow of Agora.
 disable-model-invocation: true
 argument-hint: "[idea-id]"
-allowed-tools: Read Write Agent
-version: 1.3.0
+allowed-tools: Read Write Agent Bash Skill
+version: 1.3.1
 author: Aryan Curiel
 ---
 
@@ -76,7 +76,7 @@ For each round:
    must see the prior specialists' responses from this round before contributing.
 
    For each specialist {name}:
-   a. Read .claude/skills/{name}/MEMORY.md if it exists. Save content as [MEMORY].
+   a. Read .claude/agents/{name}/MEMORY.md if it exists. Save content as [MEMORY].
       If the file does not exist, [MEMORY] is empty — omit [YOUR MEMORY] from the prompt.
    b. Call the Agent tool (foreground — wait for this response before issuing the next):
       - subagent_type: "{name}"  (e.g. "specialist-finance")
@@ -114,7 +114,10 @@ For each round:
    - Current scores from the idea file
    - [CONSTRAINTS]: {formatted constraint list from step 2, if not null}
 
-10. /agora-score-round returns updated scores and synthesis. Print a milestone update:
+10. /agora-score-round returns a JSON object. Extract `synthesis` from the response and save it as
+    [ROUND_SYNTHESIS]. This value is passed to specialists in Round 2+ as their idea context.
+
+    Print a milestone update:
 
     ── Round {n} complete ──────────────────────────
     Readiness: {old}% → {new}%
@@ -148,7 +151,7 @@ For each round:
 16. Prepare memory-update prompts for all specialists, then launch them IN A SINGLE MESSAGE (parallel).
 
     For each specialist {name} in roster:
-    a. Read .claude/skills/{name}/MEMORY.md. Save as [CUR_MEM_{name}]. If absent, use "".
+    a. Read .claude/agents/{name}/MEMORY.md. Save as [CUR_MEM_{name}]. If absent, use "".
     b. Collect all messages from this specialist across all rounds as [CONTRIBUTIONS_{name}],
        labeled "Round {n}: {message content}".
 
@@ -176,10 +179,10 @@ For each round:
        Write all files in a single Bash call using heredocs — one per file — rather than
        separate Write tool calls. Example:
        ```bash
-       cat > .claude/skills/specialist-foo/MEMORY.md << 'EOF'
+       cat > .claude/agents/specialist-foo/MEMORY.md << 'EOF'
        {content}
        EOF
-       cat > .claude/skills/specialist-bar/MEMORY.md << 'EOF'
+       cat > .claude/agents/specialist-bar/MEMORY.md << 'EOF'
        {content}
        EOF
        ```

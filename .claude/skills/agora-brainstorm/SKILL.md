@@ -3,8 +3,8 @@ name: agora-brainstorm
 description: Run a full multi-agent brainstorm session to expand an idea's possibility space. Use when the user wants to brainstorm, explore, or generate proposals for an idea. Produces a set of proposals organized by time horizon (quick wins, growth features, moonshots). Does not affect readiness scores.
 disable-model-invocation: true
 argument-hint: "[idea-id]"
-allowed-tools: Read Write Agent
-version: 1.1.0
+allowed-tools: Read Write Agent Bash
+version: 1.1.1
 author: Aryan Curiel
 ---
 
@@ -59,7 +59,7 @@ For each round (1 through max_brainstorm_rounds):
 
    Before issuing any Agent calls, read each dreamer's memory file:
    For each dreamer {name} in [futurist, builder, user-advocate, connector, narrativist]:
-   a. Read `.claude/skills/dreamer-{name}/MEMORY.md` if it exists. Save content as [MEM_{name}].
+   a. Read `.claude/agents/dreamer-{name}/MEMORY.md` if it exists. Save content as [MEM_{name}].
       If absent, omit [YOUR MEMORY] from that dreamer's prompt.
 
    Then IN A SINGLE MESSAGE, issue all 5 dreamer Agent calls at once:
@@ -104,7 +104,7 @@ For each round (1 through max_brainstorm_rounds):
       Add all to [ALL_PROPOSALS].
 
 9. After each round (rounds 2 and 3 only): invoke the Skeptic as a subagent (foreground).
-   Before calling, read `.claude/skills/specialist-skeptic/MEMORY.md` if it exists; save as [SKEPTIC_MEMORY].
+   Before calling, read `.claude/agents/specialist-skeptic/MEMORY.md` if it exists; save as [SKEPTIC_MEMORY].
    - subagent_type: "specialist-skeptic"
    - description: "Skeptic grounding — Round {n}"
    - prompt:
@@ -182,7 +182,7 @@ For each round (1 through max_brainstorm_rounds):
 13. Prepare memory-update prompts for all dreamers, then launch them IN A SINGLE MESSAGE (parallel).
 
     For each dreamer {name} in [futurist, builder, user-advocate, connector, narrativist]:
-    a. Read `.claude/skills/dreamer-{name}/MEMORY.md`. Save as [CUR_MEM_{name}].
+    a. Read `.claude/agents/dreamer-{name}/MEMORY.md`. Save as [CUR_MEM_{name}].
        If absent, use "".
     b. Collect all proposals from this dreamer across all rounds as [CONTRIBUTIONS_{name}],
        labeled "Round {n}: {full output}".
@@ -210,10 +210,10 @@ For each round (1 through max_brainstorm_rounds):
     c. After all 5 Agent calls return, collect the returned MEMORY.md content from each.
        Write all 5 files in a single Bash call using heredocs — one per file:
        ```bash
-       cat > .claude/skills/dreamer-futurist/MEMORY.md << 'EOF'
+       cat > .claude/agents/dreamer-futurist/MEMORY.md << 'EOF'
        {content}
        EOF
-       cat > .claude/skills/dreamer-builder/MEMORY.md << 'EOF'
+       cat > .claude/agents/dreamer-builder/MEMORY.md << 'EOF'
        {content}
        EOF
        {... repeat for all 5 dreamers ...}
@@ -221,9 +221,12 @@ For each round (1 through max_brainstorm_rounds):
 
 ### Write analytics
 
-14. Append one JSON line to `analytics/brainstorms.jsonl` (create the file if it does not exist):
+14. Append one JSON line to `analytics/brainstorms.jsonl` (create the file if it does not exist).
+    Use a heredoc in a single Bash call to avoid quoting issues with JSON values:
     ```bash
-    echo '{...}' >> analytics/brainstorms.jsonl
+    cat >> analytics/brainstorms.jsonl << 'EOF'
+    {...constructed JSON object...}
+    EOF
     ```
     
     JSON structure:

@@ -3,6 +3,7 @@ name: dreamer-user-advocate
 description: User Advocate dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
 tools: []
 memory: project
+version: 1.0.0
 ---
 
 You are The User Advocate in a multi-agent brainstorming session.

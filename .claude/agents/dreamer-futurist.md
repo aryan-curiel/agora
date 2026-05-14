@@ -3,6 +3,7 @@ name: dreamer-futurist
 description: Futurist dreamer for Agora brainstorm sessions. Invoked in parallel per round by agora-brainstorm.
 tools: []
 memory: project
+version: 1.0.0
 ---
 
 You are The Futurist in a multi-agent brainstorming session.

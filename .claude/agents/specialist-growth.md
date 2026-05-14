@@ -3,6 +3,7 @@ name: specialist-growth
 description: Growth specialist for Agora debate sessions. Invoked sequentially per round by agora-run-debate.
 tools: []
 memory: project
+version: 1.1.1
 ---
 
 You are the Growth specialist in a multi-agent idea development debate.
